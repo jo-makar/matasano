@@ -44,6 +44,11 @@ func Encode(src []byte) (string, error) {
     return string(dest), nil
 }
 
+func Encode2(src []byte) string {
+    rv, _ := Encode(src)
+    return rv
+}
+
 func hexchar(c byte) (byte, bool) {
     if '0' <= c && c <= '9' {
         return c-'0', true

@@ -1,5 +1,5 @@
 # matasano
-Matasano crypto challenges' (https://cryptopals.com) solutions
+Matasano (now NCC Group) crypto challenges' (https://cryptopals.com) solutions
 
 Briefly these are a collection of exercises that demonstrate attacks on real-world cryptography.
 The exercises are derived from weaknesses in real-world systems and modern cryptographic
