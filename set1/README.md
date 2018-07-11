@@ -41,18 +41,15 @@ Write code to do this for you. How? Devise some method for "scoring" a piece of 
 
 Tune your algorithm until this works.
 
-<pre>
-// ------------------------------------------------------------
-
-4. Detect single-character XOR
+# 4. Detect single-character XOR
 
 One of the 60-character strings at:
 
-  https://gist.github.com/3132713
+https://gist.github.com/3132713 (prob4.txt)
 
-has been encrypted by single-character XOR. Find it. (Your code from
-#3 should help.)
+has been encrypted by single-character XOR. Find it. (Your code from #3 should help.)
 
+<pre>
 // ------------------------------------------------------------
 
 5. Repeating-key XOR Cipher
