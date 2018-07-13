@@ -2,10 +2,14 @@ package main
 
 import (
     "./base64"
+    "./score"
+    "./xor"
     "bufio"
+    "encoding/json"
     "errors"
     "fmt"
     "io"
+    "io/ioutil"
     "log"
     "math"
     "os"
@@ -14,9 +18,21 @@ import (
 )
 
 func main() {
+    _, path, _, _ := runtime.Caller(0)
+
+    b, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), "prob3-1.json"))
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    var tables [2]map[string]float32
+    err = json.Unmarshal(b, &tables)
+    if err != nil {
+        log.Fatal(err)
+    }
+
     // Retrieve and decode the ciphertext
 
-    _, path, _, _ := runtime.Caller(0)
     file, err := os.Open(filepath.Join(filepath.Dir(path), "prob6.txt"))
     if err != nil {
         log.Fatal(err)
@@ -43,12 +59,12 @@ func main() {
         log.Fatal(err)
     }
 
-    // Guess the keysize using Hamming distance
+    // Guess the keysize using Hamming distance of ciphertext chunks
 
     var bestdist float32 = math.MaxFloat32
     var bestsize uint
 
-    for i:=uint(2); i<41; i++ {
+    for i:=uint(2); i<=40; i++ {
         chunks := split(cipher, i)
 
         // Calculate the average distance of first unique pairs
@@ -74,11 +90,57 @@ func main() {
         }
     }
 
-    fmt.Println("best keysize calculated to be", bestsize)
+    fmt.Printf("keysize = %d\n", bestsize)
+    keysize := bestsize
 
     // Transpose the ciphertext blocks and solve single-char xor against each block
 
-    // FIXME STOPPED
+    key := make([]byte, keysize)
+
+    for i:=uint(0); i<keysize; i++ {
+        cipher2 := column(cipher, i, keysize)
+
+        var lowestscore float32 = math.MaxFloat32
+        var lowestchar byte
+
+        for c:=0; c<256; c++ {
+            d, err := xor.Repeat(cipher2, []byte{byte(c)})
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            t1, err := score.Maketable2(d, 1)
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            t2, err := score.Maketable2(d, 2)
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            s := score.Comparetables(tables[0], t1) + score.Comparetables(tables[1], t2)
+            if s < lowestscore {
+                lowestscore = s
+                lowestchar = byte(c)
+            }
+        }
+
+        key[i] = lowestchar
+    }
+
+    fmt.Printf("key = %v\n", key)
+    fmt.Printf("      %s\n", string(key))
+    fmt.Printf("\n")
+
+    plain, err := xor.Repeat(cipher, key)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("plaintext:\n")
+    fmt.Printf("%v\n", plain)
+    fmt.Printf("%s\n", string(plain))
 }
 
 // Hamming distance
@@ -122,6 +184,25 @@ func split(data []byte, n uint) [][]byte {
     for i, j := uint(0), 0; i+n <= uint(len(data)); i, j = i+n, j+1 {
         rv[j] = data[i:i+n]
     }
+
+    return rv
+}
+
+func column(data []byte, col, rowlen uint) []byte {
+    if rowlen == 0 {
+        log.Fatal(errors.New("column: rowlen == 0"))
+    }
+    if col >= rowlen {
+        log.Fatal(errors.New("column: col >= rowlen"))
+    }
+
+    rv := make([]byte, uint(len(data))/rowlen+1)
+
+    j := 0
+    for i:=col; i<uint(len(data)); i, j = i+rowlen, j+1 {
+        rv[j] = data[i]
+    }
+    rv = rv[:j]
 
     return rv
 }
