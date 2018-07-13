@@ -32,7 +32,7 @@ func main() {
     }
 
     var lowestscore float32 = math.MaxFloat32
-    var lowestchar byte = 0
+    var lowestchar byte
 
     for c:=0; c<256; c++ {
         data2, err := xor.Repeat(data, []byte{byte(c)})
