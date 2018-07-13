@@ -104,20 +104,17 @@ g. Solve each block as if it was single-character XOR. You already have code to 
 e. For each block, the single-byte XOR key that produces the best looking histogram is the
 repeating-key XOR key byte for that block. Put them together and you have the key.
 
-<pre>
-// ------------------------------------------------------------
-
-7. AES in ECB Mode
+# 7. AES in ECB Mode
 
 The Base64-encoded content at the following location:
 
-    https://gist.github.com/3132853
+https://gist.github.com/3132853 (prob7.txt)
 
 Has been encrypted via AES-128 in ECB mode under the key
 
-    "YELLOW SUBMARINE".
+`YELLOW SUBMARINE`
 
-(I like "YELLOW SUBMARINE" because it's exactly 16 bytes long).
+(I like `YELLOW SUBMARINE` because it's exactly 16 bytes long).
 
 Decrypt it.
 
@@ -125,6 +122,7 @@ Easiest way:
 
 Use OpenSSL::Cipher and give it AES-128-ECB as the cipher.
 
+<pre>
 // ------------------------------------------------------------
 
 8. Detecting ECB
