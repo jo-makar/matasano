@@ -19,7 +19,7 @@ DSA and RSA, a variety of famous attacks, and so on.
 - Problem set 2
   - [x] Implement PKCS#7 padding
   - [x] Implement CBC Mode
-  - [ ] Write an oracle function and use it to detect ECB
+  - [x] Write an oracle function and use it to detect ECB
   - [ ] Byte-at-a-time ECB decryption, Full control version
   - [ ] ECB cut-and-paste
   - [ ] Byte-at-a-time ECB decryption, Partial control version
