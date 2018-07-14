@@ -38,7 +38,7 @@ func main() {
         log.Fatal(err)
     }
 
-    var b64enc string
+    var encoded string
 
     reader := bufio.NewReader(file)
     for {
@@ -51,10 +51,10 @@ func main() {
         }
         line = line[:len(line)-1]
 
-        b64enc += string(line)
+        encoded += string(line)
     }
 
-    cipher, err := base64.Decode(b64enc)
+    cipher, err := base64.Decode(encoded)
     if err != nil {
         log.Fatal(err)
     }
@@ -188,6 +188,7 @@ func split(data []byte, n uint) [][]byte {
     return rv
 }
 
+// Retrieve a column from a byte array representing a table
 func column(data []byte, col, rowlen uint) []byte {
     if rowlen == 0 {
         log.Fatal(errors.New("column: rowlen == 0"))
