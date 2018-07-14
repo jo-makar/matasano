@@ -7,7 +7,7 @@ constructions covering topics from symmetric ciphers such as AES (in a variety o
 schemes such as PKCS#7, random number generators, hashing algorithmns, asymmetric ciphers such as
 DSA and RSA, a variety of famous attacks, and so on.
 
-- [x] Set 1
+- Problem set 1
   - [x] Convert hex to base64 and back
   - [x] Fixed XOR
   - [x] Single-character XOR Cipher
@@ -16,7 +16,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Break repeating-key XOR
   - [x] AES in ECB Mode
   - [x] Detecting ECB
-- [x] Set 2
+- Problem set 2
   - [x] Implement PKCS#7 padding
   - [x] Implement CBC Mode
   - [ ] Write an oracle function and use it to detect ECB
