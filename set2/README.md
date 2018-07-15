@@ -83,18 +83,18 @@ You can decrypt "unknown-string" with repeated calls to the oracle function!
 
 Here's roughly how:
 
-a. Feed identical bytes of your-string to the function 1 at a time --- start with 1 byte ("A"), then
-"AA", then "AAA" and so on. Discover the block size of the cipher. You know it, but do this step
+a. Feed identical bytes of your-string to the function 1 at a time --- start with 1 byte (`A`), then
+`AA`, then `AAA` and so on. Discover the block size of the cipher. You know it, but do this step
 anyway.
 
 b. Detect that the function is using ECB. You already know, but do this step anyways.
 
 c. Knowing the block size, craft an input block that is exactly 1 byte short (for instance, if the
-block size is 8 bytes, make "AAAAAAA"). Think about what the oracle function is going to put in that
+block size is 8 bytes, make `AAAAAAA`). Think about what the oracle function is going to put in that
 last byte position.
 
 d. Make a dictionary of every possible last byte by feeding different strings to the oracle; for
-instance, "AAAAAAAA", "AAAAAAAB", "AAAAAAAC", remembering the first block of each invocation.
+instance, `AAAAAAAA`, `AAAAAAAB`, `AAAAAAAC`, remembering the first block of each invocation.
 
 e. Match the output of the one-byte-short input to one of the entries in your dictionary. You've now
 discovered the first byte of unknown-string.
