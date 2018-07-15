@@ -4,6 +4,7 @@ import (
     "./base64"
     "./hex"
     "bytes"
+    "errors"
     "fmt"
     "log"
 )
@@ -37,7 +38,7 @@ func test(hs, b64 string) {
     }
 
     if d2 != b64 {
-        log.Fatal(fmt.Sprintf("%v != %v", d2, b64))
+        log.Fatal(errors.New(fmt.Sprintf("%v != %v", d2, b64)))
     }
 
     d3, err := base64.Decode(d2)
@@ -46,6 +47,6 @@ func test(hs, b64 string) {
     }
 
     if !bytes.Equal(d3, d1) {
-        log.Fatal(fmt.Sprintf("%v != %v", d3, d1))
+        log.Fatal(errors.New(fmt.Sprintf("%v != %v", d3, d1)))
     }
 }

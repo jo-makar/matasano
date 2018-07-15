@@ -3,7 +3,7 @@ package main
 import (
     "./hex"
     "bufio"
-    "errors"
+    "bytes"
     "fmt"
     "io"
     "log"
@@ -50,7 +50,7 @@ func main() {
                     continue
                 }
 
-                if equal(data[i:i+16], data[j:j+16]) {
+                if bytes.Equal(data[i:i+16], data[j:j+16]) {
                     repeats++
                 }
             }
@@ -64,18 +64,4 @@ func main() {
             fmt.Printf("line %d has %d repeated blocks\n", linenum, maxrepeats)
         }
     }
-}
-
-func equal(a, b []byte) bool {
-    if len(a) != len(b) {
-        log.Fatal(errors.New("len(a) != len(b)"))
-    }
-
-    for i:=0; i<len(a); i++ {
-        if a[i] != b[i] {
-            return false
-        }
-    }
-
-    return true
 }

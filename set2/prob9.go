@@ -2,6 +2,8 @@ package main
 
 import (
     "./pkcs7"
+    "bytes"
+    "errors"
     "fmt"
     "log"
 )
@@ -27,8 +29,8 @@ func test(input, expected  []byte, blklen uint) {
         log.Fatal(err)
     }
 
-    if !equal(padded, expected) {
-        log.Fatal(fmt.Sprintf("mismatch: %v", padded))
+    if !bytes.Equal(padded, expected) {
+        log.Fatal(errors.New(fmt.Sprintf("mismatch: %v", padded)))
     }
 
     unpadded, err := pkcs7.Unpad(padded, blklen)
@@ -36,21 +38,7 @@ func test(input, expected  []byte, blklen uint) {
         log.Fatal(err)
     }
 
-    if !equal(unpadded, input) {
-        log.Fatal(fmt.Sprintf("mismatch: %v", unpadded))
+    if !bytes.Equal(unpadded, input) {
+        log.Fatal(errors.New(fmt.Sprintf("mismatch: %v", unpadded)))
     }
-}
-
-func equal(a, b []byte) bool {
-    if len(a) != len(b) {
-        return false
-    }
-
-    for i:=0; i<len(a); i++ {
-        if a[i] != b[i] {
-            return false
-        }
-    }
-
-    return true
 }

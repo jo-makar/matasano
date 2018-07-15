@@ -3,6 +3,7 @@ package main
 import (
     "./aes"
     "./pkcs7"
+    "bytes"
     "fmt"
     "log"
     "math/rand"
@@ -29,7 +30,7 @@ func main() {
         allequal := true
 
         for i:=16*2; i<len(cipher)-16*2; i+=16 {
-            if !equal(cipher[16:16*2], cipher[i:i+16]) {
+            if !bytes.Equal(cipher[16:16*2], cipher[i:i+16]) {
                 allequal = false
                 break
             }
@@ -81,18 +82,4 @@ func randbytes(n uint) []byte {
     }
 
     return rv
-}
-
-func equal(a, b []byte) bool {
-    if len(a) != len(b) {
-        return false
-    }
-
-    for i:=0; i<len(a); i++ {
-        if a[i] != b[i] {
-            return false
-        }
-    }
-
-    return true
 }

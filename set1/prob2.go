@@ -3,6 +3,7 @@ package main
 import (
     "./hex"
     "./xor"
+    "errors"
     "fmt"
     "log"
 )
@@ -28,6 +29,6 @@ func main() {
         log.Fatal(err)
     }
     if c2 != "746865206b696420646f6e277420706c6179" {
-        log.Fatal(fmt.Sprintf("mismatch: %s", c2))
+        log.Fatal(errors.New(fmt.Sprintf("mismatch: %s", c2)))
     }
 }
