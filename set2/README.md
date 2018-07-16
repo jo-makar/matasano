@@ -138,9 +138,9 @@ encoded as:
 
 `email=foo@bar.com&uid=10&role=user`
 
-Your "profile_for" function should NOT allow encoding metacharacters (& and =). Eat them, quote
+Your `profile_for` function should NOT allow encoding metacharacters (& and =). Eat them, quote
 them, whatever you want to do, but don't let people set their email address to
-"foo@bar.com&role=admin".
+`foo@bar.com&role=admin`.
 
 Now, two more easy functions. Generate a random AES key, then:
 

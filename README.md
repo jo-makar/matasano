@@ -23,7 +23,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement CBC Mode
   - [x] Write an oracle function and use it to detect ECB
   - [x] Byte-at-a-time ECB decryption, Full control version
-  - [ ] ECB cut-and-paste
+  - [x] ECB cut-and-paste
   - [ ] Byte-at-a-time ECB decryption, Partial control version
   - [ ] PKCS#7 padding validation
   - [ ] CBC bit flipping
