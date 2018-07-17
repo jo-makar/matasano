@@ -27,7 +27,10 @@ func main() {
         log.Fatal(err)
     }
 
-    // Use a specific plaintext to delineate the prefix.
+    // Not bothering with determining cipher block length nor verifying ECB mode.
+    // Those processes are identical to those from problem 12.
+
+    // Use a specific plaintext to delineate the random-length prefix.
     // Specifically run the oracle repeatedly against a specific plaintext and look for the
     // corresponding ciphertexts when the prefix ends on a block boundary.
 
@@ -101,7 +104,109 @@ func main() {
     }
     fmt.Printf("ciphertext verified, found %d times in %d iterations\n", count, i)
 
-    // FIXME STOPPED
+    // The remainder is identical to the algorithm from problem 12 but uses a pseudo-oracle
+
+    pseudo := pseudooracle{plain:plain, cipher:cipher}
+
+    {
+        // Determine the length of the unknown string, specifically:
+        // Look for the first change in ciphertext length as the plaintext length increases
+        // then the unknown string length can be calculated from the byte count at transition
+
+        cipher, err = pseudo.oracle([]byte{})
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        var unknownlen uint
+        minlen := uint(len(cipher))
+        blocklen := uint(len(key))
+
+        for i:=uint(1); i<100; i++ {
+            input := make([]byte, i)
+
+            cipher, err = pseudo.oracle(input)
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            if uint(len(cipher)) > minlen {
+                // minlen / blocklen will always be >= 1
+                unknownlen = uint(minlen/blocklen-1)*blocklen + blocklen-i
+                break
+            }
+        }
+
+        if unknownlen == 0 {
+            log.Fatal(errors.New("unknown string length undetermined"))
+        }
+
+        fmt.Println("unknown length =", unknownlen)
+        if unknownlen != uint(len(unknown)) {
+            log.Fatal(errors.New("unknown length incorrect"))
+        }
+
+        fmt.Printf("pseudo: found in %d iterations of which %d were skips\n",
+                   pseudo.iters, pseudo.skips)
+
+        // Byte-by-byte dictionary attack:
+        // The idea is to slide a given block to the right so that all but the last byte is known,
+        // then iterate through the possibilities for that last byte until a match is found.
+        // Note that only the first block has bytes prepended, after the first block the prepends are
+        // purely to slide bytes to the right in the later blocks.
+
+        pseudo.iters = 0
+        pseudo.skips = 0
+
+        discovered := make([]byte, unknownlen)
+
+        for i:=uint(0); i<uint(len(discovered)); i++ {
+            input := make([]byte, blocklen-(i%blocklen+1))
+            for j:=uint(0); j < blocklen-(i%blocklen+1); j++ {
+                input[j] = 'A'
+            }
+
+            target, err := pseudo.oracle(input)
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            found := false
+            for j:=0; j<256; j++ {
+                testinput := bytes.NewBuffer(input)
+                for k:=uint(0); uint(testinput.Len()) < (i/blocklen+1)*blocklen - 1; k++ {
+                    testinput.WriteByte(discovered[k])
+                }
+                testinput.WriteByte(byte(j))
+
+                testoutput, err := pseudo.oracle(testinput.Bytes())
+                if err != nil {
+                    log.Fatal(err)
+                }
+
+                if bytes.Equal(testoutput[(i/blocklen)*blocklen : (i/blocklen+1)*blocklen],
+                                   target[(i/blocklen)*blocklen : (i/blocklen+1)*blocklen]) {
+                    discovered[i] = byte(j)
+                    found = true
+                    break
+                }
+            }
+
+            if !found {
+                log.Fatal(errors.New("matching block not found"))
+            }
+        }
+
+        fmt.Println("unknown =", discovered)
+        fmt.Println(string(discovered))
+
+        if !bytes.Equal(discovered, unknown) {
+            log.Fatal(errors.New("unknown incorrect"))
+        }
+
+        fmt.Printf("pseudo: found in %d iterations of which %d were skips\n",
+                   pseudo.iters, pseudo.skips)
+    }
 }
 
 func oracle(input []byte) ([]byte, error) {
@@ -119,6 +224,34 @@ func oracle(input []byte) ([]byte, error) {
     }
 
     return cipher, nil
+}
+
+type pseudooracle struct {
+    plain, cipher []byte
+    iters, skips uint
+}
+
+func (p *pseudooracle) oracle(input []byte) ([]byte, error) {
+    for {
+        p.iters++
+
+        plain2 := make([]byte, len(p.plain) + len(input))
+        copy(plain2, p.plain)
+        copy(plain2[len(p.plain):len(plain2)], input)
+
+        cipher, err := oracle(plain2)
+        if err != nil {
+            return nil, err
+        }
+
+        i := bytes.Index(cipher, p.cipher)
+        if i == -1 {
+            p.skips++
+            continue
+        }
+
+        return cipher[i+len(p.cipher):], nil
+    }
 }
 
 func randbytes(n uint) []byte {
