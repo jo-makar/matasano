@@ -24,9 +24,9 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Write an oracle function and use it to detect ECB
   - [x] Byte-at-a-time ECB decryption, Full control version
   - [x] ECB cut-and-paste
-  - [ ] Byte-at-a-time ECB decryption, Partial control version
-  - [ ] PKCS#7 padding validation
-  - [ ] CBC bit flipping
+  - [x] Byte-at-a-time ECB decryption, Partial control version
+  - [x] PKCS#7 padding validation
+  - [x] CBC bit flipping
 
 # License
 This work is released to the public domain.
