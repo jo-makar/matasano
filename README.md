@@ -29,7 +29,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] CBC bit flipping
 - Problem set 3
   - [x] The CBC padding oracle
-  - [ ] Implement CTR mode
+  - [x] Implement CTR mode
   - [ ] Break fixed-nonce CTR mode using substitions
   - [ ] Break fixed-nonce CTR mode using stream cipher analysis
   - [ ] Implement the MT19937 Mersenne Twister RNG
