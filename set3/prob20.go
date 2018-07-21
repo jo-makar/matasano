@@ -4,13 +4,16 @@ import (
     "./aes"
     "../set1/base64"
     "../set1/score"
+    "bufio"
     "bytes"
     "encoding/json"
     "fmt"
+    "io"
     "io/ioutil"
     "log"
     "math"
     "math/rand"
+    "os"
     "path/filepath"
     "runtime"
     "time"
@@ -21,64 +24,41 @@ func main() {
     key := randbytes(16)
     nonce := uint64(0)
 
-    plains := []string{
-        "SSBoYXZlIG1ldCB0aGVtIGF0IGNsb3NlIG9mIGRheQ==",
-        "Q29taW5nIHdpdGggdml2aWQgZmFjZXM=",
-        "RnJvbSBjb3VudGVyIG9yIGRlc2sgYW1vbmcgZ3JleQ==",
-        "RWlnaHRlZW50aC1jZW50dXJ5IGhvdXNlcy4=",
-        "SSBoYXZlIHBhc3NlZCB3aXRoIGEgbm9kIG9mIHRoZSBoZWFk",
-        "T3IgcG9saXRlIG1lYW5pbmdsZXNzIHdvcmRzLA==",
-        "T3IgaGF2ZSBsaW5nZXJlZCBhd2hpbGUgYW5kIHNhaWQ=",
-        "UG9saXRlIG1lYW5pbmdsZXNzIHdvcmRzLA==",
-        "QW5kIHRob3VnaHQgYmVmb3JlIEkgaGFkIGRvbmU=",
-        "T2YgYSBtb2NraW5nIHRhbGUgb3IgYSBnaWJl",
-        "VG8gcGxlYXNlIGEgY29tcGFuaW9u",
-        "QXJvdW5kIHRoZSBmaXJlIGF0IHRoZSBjbHViLA==",
-        "QmVpbmcgY2VydGFpbiB0aGF0IHRoZXkgYW5kIEk=",
-        "QnV0IGxpdmVkIHdoZXJlIG1vdGxleSBpcyB3b3JuOg==",
-        "QWxsIGNoYW5nZWQsIGNoYW5nZWQgdXR0ZXJseTo=",
-        "QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=",
-        "VGhhdCB3b21hbidzIGRheXMgd2VyZSBzcGVudA==",
-        "SW4gaWdub3JhbnQgZ29vZCB3aWxsLA==",
-        "SGVyIG5pZ2h0cyBpbiBhcmd1bWVudA==",
-        "VW50aWwgaGVyIHZvaWNlIGdyZXcgc2hyaWxsLg==",
-        "V2hhdCB2b2ljZSBtb3JlIHN3ZWV0IHRoYW4gaGVycw==",
-        "V2hlbiB5b3VuZyBhbmQgYmVhdXRpZnVsLA==",
-        "U2hlIHJvZGUgdG8gaGFycmllcnM/",
-        "VGhpcyBtYW4gaGFkIGtlcHQgYSBzY2hvb2w=",
-        "QW5kIHJvZGUgb3VyIHdpbmdlZCBob3JzZS4=",
-        "VGhpcyBvdGhlciBoaXMgaGVscGVyIGFuZCBmcmllbmQ=",
-        "V2FzIGNvbWluZyBpbnRvIGhpcyBmb3JjZTs=",
-        "SGUgbWlnaHQgaGF2ZSB3b24gZmFtZSBpbiB0aGUgZW5kLA==",
-        "U28gc2Vuc2l0aXZlIGhpcyBuYXR1cmUgc2VlbWVkLA==",
-        "U28gZGFyaW5nIGFuZCBzd2VldCBoaXMgdGhvdWdodC4=",
-        "VGhpcyBvdGhlciBtYW4gSSBoYWQgZHJlYW1lZA==",
-        "QSBkcnVua2VuLCB2YWluLWdsb3Jpb3VzIGxvdXQu",
-        "SGUgaGFkIGRvbmUgbW9zdCBiaXR0ZXIgd3Jvbmc=",
-        "VG8gc29tZSB3aG8gYXJlIG5lYXIgbXkgaGVhcnQs",
-        "WWV0IEkgbnVtYmVyIGhpbSBpbiB0aGUgc29uZzs=",
-        "SGUsIHRvbywgaGFzIHJlc2lnbmVkIGhpcyBwYXJ0",
-        "SW4gdGhlIGNhc3VhbCBjb21lZHk7",
-        "SGUsIHRvbywgaGFzIGJlZW4gY2hhbmdlZCBpbiBoaXMgdHVybiw=",
-        "VHJhbnNmb3JtZWQgdXR0ZXJseTo=",
-        "QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=",
-    }
-
-    ciphers := make([][]byte, len(plains))
-
-    for i, v := range plains {
-        decoded, err := base64.Decode(v)
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        ciphers[i], err = aes.Ctrencrypt(decoded, key, nonce)
-        if err != nil {
-            log.Fatal(err)
-        }
-    }
-
     _, path, _, _ := runtime.Caller(0)
+
+    file, err := os.Open(filepath.Join(filepath.Dir(path), "prob20.txt"))
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    plains := make([][]byte, 0)
+    ciphers := make([][]byte, 0)
+
+    reader := bufio.NewReader(file)
+    for {
+        line, err := reader.ReadBytes('\n')
+        if err != nil {
+            if err == io.EOF {
+                break
+            }
+            log.Fatal(err)
+        }
+        line = line[:len(line)-1]
+
+        decoded, err := base64.Decode(string(line))
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        plains = append(plains, decoded)
+
+        cipher, err := aes.Ctrencrypt(decoded, key, nonce)
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        ciphers = append(ciphers, cipher)
+    }
 
     data, err := ioutil.ReadFile(filepath.Join(filepath.Dir(path), "../set1/prob3-1.json"))
     if err != nil {
@@ -147,6 +127,7 @@ func main() {
     //
     //      Also the last few chars of the longer ciphertexts are incorrect due to lack of data,
     //      this is a more difficult problem algorithmically though can be dealt with in context.
+    //      Obviously didn't bother truncating as recommended in problem text.
 
     fmt.Println("Decryptions based on best keystream found:")
     for _, v := range ciphers {
@@ -161,12 +142,7 @@ func main() {
     fmt.Println()
     fmt.Println("Actual plaintext:")
     for _, v := range plains {
-        decoded, err := base64.Decode(v)
-        if err != nil {
-            log.Fatal(err)
-        }
-
-        fmt.Println(string(decoded))
+        fmt.Println(string(v))
     }
 }
 
