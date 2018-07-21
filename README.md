@@ -30,7 +30,7 @@ DSA and RSA, a variety of famous attacks, and so on.
 - Problem set 3
   - [x] The CBC padding oracle
   - [x] Implement CTR mode
-  - [ ] Break fixed-nonce CTR mode using substitions
+  - [x] Break fixed-nonce CTR mode using substitions
   - [ ] Break fixed-nonce CTR mode using stream cipher analysis
   - [ ] Implement the MT19937 Mersenne Twister RNG
   - [ ] "Crack" an MT19937 seed

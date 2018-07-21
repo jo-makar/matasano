@@ -170,7 +170,7 @@ And since the keystream is the same for every ciphertext:
 CIPHERTEXT-BYTE XOR KEYSTREAM-BYTE = PLAINTEXT-BYTE (ie, "you don't say!")
 
 Attack this cryptosystem "Carmen Sandiego" style: guess letters, use expected English language
-frequence to validate guesses, catch common English trigrams, and so on. Points for automating this,
+frequency to validate guesses, catch common English trigrams, and so on. Points for automating this,
 but part of the reason I'm having you do this is that I think this approach is suboptimal.
 
 # 20. Break fixed-nonce CTR mode using stream cipher analysis
