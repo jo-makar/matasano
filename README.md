@@ -28,7 +28,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] PKCS#7 padding validation
   - [x] CBC bit flipping
 - Problem set 3
-  - [ ] The CBC padding oracle
+  - [x] The CBC padding oracle
   - [ ] Implement CTR mode
   - [ ] Break fixed-nonce CTR mode using substitions
   - [ ] Break fixed-nonce CTR mode using stream cipher analysis
