@@ -37,7 +37,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Clone an MT19937 RNG from its output
   - [x] Create the MT19937 stream cipher and break it
 - Problem set 4
-  - [ ] Break "random access read/write" AES CTR
+  - [x] Break "random access read/write" AES CTR
   - [ ] CTR bit flipping
   - [ ] Recover the key from CBC with IV=Key
   - [ ] Implement a SHA-1 keyed MAC
