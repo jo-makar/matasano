@@ -23,7 +23,7 @@ func main() {
         log.Fatal(err)
     }
 
-    // Re-encrypting in CTR mode and a random key
+    // Re-encrypting in CTR mode with a random key
     key := rand.Bytes(16)
     nonce := rand.Uint64()
     ciphertext, err := aes3.Ctrencrypt(plaintext, key, nonce)
