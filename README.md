@@ -34,7 +34,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Break fixed-nonce CTR mode using stream cipher analysis
   - [x] Implement the MT19937 Mersenne Twister RNG
   - [x] "Crack" an MT19937 seed
-  - [ ] Clone an MT19937 RNG from its output
+  - [x] Clone an MT19937 RNG from its output
   - [ ] Create the MT19937 stream cipher and break it
 
 # License
