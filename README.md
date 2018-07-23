@@ -40,8 +40,8 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Break "random access read/write" AES CTR
   - [x] CTR bit flipping
   - [x] Recover the key from CBC with IV=Key
-  - [ ] Implement a SHA-1 keyed MAC
-  - [ ] Break a SHA-1 keyed MAC using length extension
+  - [x] Implement a SHA-1 keyed MAC
+  - [x] Break a SHA-1 keyed MAC using length extension
   - [ ] Break an MD4 keyed MAC using length extension
   - [ ] Implement HMAC-SHA1 and break it with an artificial timing leak
   - [ ] Break HMAC-SHA1 with a slightly less artificial timing leak

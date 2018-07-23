@@ -13,9 +13,32 @@ func Bytes(n int) []byte {
         seeded = true
     }
 
-    if n <= 0 {
+    if n < 0 {
         n = 0
     }
+
+    b := make([]byte, n)
+    for i:=0; i<n; i++ {
+        b[i] = byte(rand.Intn(256))
+    }
+
+    return b
+}
+
+func Bytes2(min, max int) []byte {
+    if !seeded {
+        rand.Seed(time.Now().Unix())
+        seeded = true
+    }
+
+    if min < 0 {
+        min = 0
+    }
+    if max < min {
+        max = min
+    }
+
+    n := min + rand.Intn(max-min + 1)
 
     b := make([]byte, n)
     for i:=0; i<n; i++ {
