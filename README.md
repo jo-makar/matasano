@@ -42,7 +42,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Recover the key from CBC with IV=Key
   - [x] Implement a SHA-1 keyed MAC
   - [x] Break a SHA-1 keyed MAC using length extension
-  - [ ] Break an MD4 keyed MAC using length extension
+  - [x] Break an MD4 keyed MAC using length extension
   - [ ] Implement HMAC-SHA1 and break it with an artificial timing leak
   - [ ] Break HMAC-SHA1 with a slightly less artificial timing leak
 - Problem set 5

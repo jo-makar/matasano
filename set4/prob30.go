@@ -2,7 +2,7 @@ package main
 
 import (
     "./rand"
-    "./sha1"
+    "./md4"
     "bytes"
     "encoding/binary"
     "errors"
@@ -14,15 +14,15 @@ func main() {
     key := rand.Bytes2(5, 10)
 
     msg := []byte("comment1=cooking%20MCs;userdata=foo;comment2=%20like%20a%20pound%20of%20bacon")
-    mac := macsha1(key, msg)
+    mac := macmd4(key, msg)
 
-    // Retrieve the SHA1 registers from the MAC
+    // Retrieve the MD4 registers from the MAC
 
-    var regs [5]uint32
+    var regs [4]uint32
 
     for i:=0; i<len(regs); i++ {
         s := bytes.NewReader(mac[4*i : 4*(i+1)])
-        err := binary.Read(s, binary.BigEndian, &regs[i])
+        err := binary.Read(s, binary.LittleEndian, &regs[i])
         if err != nil {
             log.Fatal(err)
         }
@@ -30,7 +30,7 @@ func main() {
 
     found := false
     for keylen:=1; keylen<20; keylen++ {
-        // Determine the SHA1 padding for the guessed key length
+        // Determine the MD4 padding for the guessed key length
 
         padding := new(bytes.Buffer)
 
@@ -40,16 +40,16 @@ func main() {
         }
 
         l := (uint64(keylen) + uint64(len(msg))) * 8
-        err := binary.Write(padding, binary.BigEndian, &l)
+        err := binary.Write(padding, binary.LittleEndian, &l)
         if err != nil {
             log.Fatal(err)
         }
 
-        // Continue a SHA1 calculation with a resumed state
+        // Continue a MD4 calculation with a resumed state
 
         msg2 := []byte(";admin=true")
 
-        hash := sha1.New2(regs, uint64(keylen + len(msg) + padding.Len()))
+        hash := md4.New2(regs, uint64(keylen + len(msg) + padding.Len()))
         hash.Write(msg2)
         forgedmac := hash.Sum(nil)
 
@@ -59,7 +59,7 @@ func main() {
         b.Write(msg)
         b.Write(padding.Bytes())
         b.Write(msg2)
-        if bytes.Equal(forgedmac, macsha1(key, b.Bytes())) {
+        if bytes.Equal(forgedmac, macmd4(key, b.Bytes())) {
             fmt.Printf("Key length is %d\n", keylen)
             fmt.Printf("Forged MAC = %v\n", forgedmac)
             found = true
@@ -72,8 +72,8 @@ func main() {
     }
 }
 
-func macsha1(key, msg []byte) []byte {
-    hash := sha1.New()
+func macmd4(key, msg []byte) []byte {
+    hash := md4.New()
     hash.Write(key)
     hash.Write(msg)
     return hash.Sum(nil)
