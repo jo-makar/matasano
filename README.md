@@ -43,8 +43,8 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement a SHA-1 keyed MAC
   - [x] Break a SHA-1 keyed MAC using length extension
   - [x] Break an MD4 keyed MAC using length extension
-  - [ ] Implement HMAC-SHA1 and break it with an artificial timing leak
-  - [ ] Break HMAC-SHA1 with a slightly less artificial timing leak
+  - [x] Implement HMAC-SHA1 and break it with an artificial timing leak
+  - [x] Break HMAC-SHA1 with a slightly less artificial timing leak
 - Problem set 5
   - [ ] Implement Diffie-Hellman
   - [ ] Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
