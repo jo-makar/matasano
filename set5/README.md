@@ -6,7 +6,7 @@ easier.
 Set "p" to 37 and "g" to 5. This algorithm is so easy I'm not even going to explain it. Just do what
 I do.
 
-Generate "a", a random number mod 37. Now generate "A", which is "g" raised to the "a" power mode 37
+Generate "a", a random number mod 37. Now generate "A", which is "g" raised to the "a" power mod 37
 --- A = (g**a) % p.
 
 Do the same for "b" and "B".
