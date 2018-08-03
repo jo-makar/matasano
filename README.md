@@ -47,7 +47,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Break HMAC-SHA1 with a slightly less artificial timing leak
 - Problem set 5
   - [x] Implement Diffie-Hellman
-  - [ ] Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
+  - [x] Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
   - [ ] Implement DH with negotiated groups, and break with malicious "g" parameters
   - [ ] Implement Secure Remote Password
   - [ ] Break SRP with a zero key
