@@ -26,7 +26,7 @@ type Client struct {
     I, P string
     a, A *big.Int
 
-    salt []byte
+    Salt []byte
     B *big.Int
 }
 
@@ -57,7 +57,7 @@ func (c *Client) hmac() []byte {
     u := bigint.Frombytes(uH[:])
 
     buf = make([]byte, 0)
-    buf = append(append(buf, c.salt...), []byte(c.P)...)
+    buf = append(append(buf, c.Salt...), []byte(c.P)...)
     xH := sha256.Sum256(buf)
     x := bigint.Frombytes(xH[:])
 
@@ -80,13 +80,13 @@ func (c *Client) hmac() []byte {
     S := bigint.Modexp(base, exp, N)
     K := sha256.Sum256(S.Bytes())
 
-    return hmacsha256(K[:], c.salt)
+    return Hmacsha256(K[:], c.Salt)
 }
 
 type Server struct {
     I, P string
     b, B *big.Int
-    salt []byte
+    Salt []byte
     v *big.Int
 
     A *big.Int
@@ -95,11 +95,11 @@ type Server struct {
 func (s *Server) Init(I, P string) {
     s.I, s.P = I, P
 
-    s.salt = make([]byte, 8)
-    binary.BigEndian.PutUint64(s.salt, rand.Uint64())
+    s.Salt = make([]byte, 8)
+    binary.BigEndian.PutUint64(s.Salt, rand.Uint64())
 
     buf := make([]byte, 0)
-    buf = append(append(buf, s.salt...), []byte(s.P)...)
+    buf = append(append(buf, s.Salt...), []byte(s.P)...)
 
     xH := sha256.Sum256(buf)
     x := bigint.Frombytes(xH[:])
@@ -117,7 +117,7 @@ func NewServer(I, P string) *Server {
 }
 
 func (s *Server) Send(c *Client) {
-    c.salt = s.salt
+    c.Salt = s.Salt
     c.B = s.B
 }
 
@@ -139,14 +139,18 @@ func (s *Server) hmac() []byte {
     S := bigint.Modexp(base, s.b, N)
     K := sha256.Sum256(S.Bytes())
 
-    return hmacsha256(K[:], s.salt)
+    return Hmacsha256(K[:], s.Salt)
 }
 
 func (s *Server) Verify(c *Client) bool {
     return bytes.Compare(c.hmac(), s.hmac()) == 0
 }
 
-func hmacsha256(key, msg []byte) []byte {
+func (s *Server) Verify2(hmac []byte) bool {
+    return bytes.Compare(hmac, s.hmac()) == 0
+}
+
+func Hmacsha256(key, msg []byte) []byte {
     const blocklen = 64
 
     if len(key) > blocklen {
