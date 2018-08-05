@@ -49,7 +49,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement Diffie-Hellman
   - [x] Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
   - [x] Implement DH with negotiated groups, and break with malicious "g" parameters
-  - [ ] Implement Secure Remote Password
+  - [x] Implement Secure Remote Password
   - [ ] Break SRP with a zero key
   - [ ] Offline dictionary attack on simplified SRP
   - [ ] Implement RSA

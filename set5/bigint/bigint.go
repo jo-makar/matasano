@@ -62,6 +62,11 @@ func Fromhex(s string) *big.Int {
     return i
 }
 
+func Frombytes(b []byte) *big.Int {
+    i := new(big.Int)
+    return i.SetBytes(b)
+}
+
 var seeded bool = false
 
 // math/big.Int analog of math/rand.Intn

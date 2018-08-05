@@ -105,7 +105,7 @@ Write attacks for each.
 # 36. Implement Secure Remote Password
 
 To understand SRP, look at how you generate an AES key from DH; now, just observe you can do the
-"opposite" operation an generate a numeric parameter from a hash. Then:
+"opposite" operation and generate a numeric parameter from a hash. Then:
 
 Replace A and B with C and S (client & server)
 
