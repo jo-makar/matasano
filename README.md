@@ -52,7 +52,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement Secure Remote Password
   - [x] Break SRP with a zero key
   - [x] Offline dictionary attack on simplified SRP
-  - [ ] Implement RSA
+  - [x] Implement RSA
   - [ ] Implement an E=3 RSA Broadcast attack
 - Problem set 6
   - [ ] Implement Unpadded Message Recovery Oracle

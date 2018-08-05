@@ -203,7 +203,7 @@ Now:
 
 Your public key is [e, n]. Your private key is [d, n].
 
-To encrypt: c = m**e%n. To decrypt: m = c**d%n
+To encrypt: `c = m**e%n`. To decrypt: `m = c**d%n`
 
 Test this out with a number, like "42".
 
