@@ -153,13 +153,13 @@ Now log in without your password by having the client send N, N*2, &c.
 
 ```
 S               x = SHA256(salt|password)
-                v = g**x % n
-C->S            I, A = g**a % n
-S->C            salt, B = g**b % n, u = 128 bit random number
+                v = g**x % N
+C->S            I, A = g**a % N
+S->C            salt, B = g**b % N, u = 128 bit random number
 C               x = SHA256(salt|password)
-                S = B**(a + ux) % n
+                S = B**(a + ux) % N
                 K = SHA256(S)
-S               S = (A * v ** u)**b % n
+S               S = (A * v ** u)**b % N
                 K = SHA256(S)
 C->S            Send HMAC-SHA256(K, salt)
 S->C            Send "OK" if HMAC-SHA256(K, salt) validates
