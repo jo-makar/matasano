@@ -48,7 +48,7 @@ DSA and RSA, a variety of famous attacks, and so on.
 - Problem set 5
   - [x] Implement Diffie-Hellman
   - [x] Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
-  - [ ] Implement DH with negotiated groups, and break with malicious "g" parameters
+  - [x] Implement DH with negotiated groups, and break with malicious "g" parameters
   - [ ] Implement Secure Remote Password
   - [ ] Break SRP with a zero key
   - [ ] Offline dictionary attack on simplified SRP
