@@ -51,7 +51,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement DH with negotiated groups, and break with malicious "g" parameters
   - [x] Implement Secure Remote Password
   - [x] Break SRP with a zero key
-  - [ ] Offline dictionary attack on simplified SRP
+  - [x] Offline dictionary attack on simplified SRP
   - [ ] Implement RSA
   - [ ] Implement an E=3 RSA Broadcast attack
 - Problem set 6

@@ -20,7 +20,7 @@ var N = bigint.Fromhex("ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024" +
                        "c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552" +
                        "bb9ed529077096966d670c354e4abc9804f1746c08ca237327fff" +
                        "fffffffffffff")
-var g = big.NewInt(2)
+var G = big.NewInt(2)
 var k = big.NewInt(3)
 
 type Client struct {
@@ -29,14 +29,14 @@ type Client struct {
 
     Salt []byte
     B *big.Int
-    u *big.Int
+    U *big.Int
 }
 
 func (c *Client) Init(I, P string) {
     c.I, c.P = I, P
 
     c.a = bigint.Randintn(N)
-    c.A = bigint.Modexp(g, c.a, N)
+    c.A = bigint.Modexp(G, c.a, N)
 }
 
 func NewClient(I, P string) *Client {
@@ -60,7 +60,7 @@ func (c *Client) hmac() []byte {
     xH := sha256.Sum256(buf)
     x := bigint.Frombytes(xH[:])
 
-    exp := new(big.Int).Add(c.a, new(big.Int).Mul(c.u, x))
+    exp := new(big.Int).Add(c.a, new(big.Int).Mul(c.U, x))
     S := bigint.Modexp(c.B, exp, N)
     K := sha256.Sum256(S.Bytes())
 
@@ -72,7 +72,7 @@ type Server struct {
     b, B *big.Int
     Salt []byte
     v *big.Int
-    u *big.Int
+    U *big.Int
 
     A *big.Int
 }
@@ -88,12 +88,12 @@ func (s *Server) Init(I, P string) {
 
     xH := sha256.Sum256(buf)
     x := bigint.Frombytes(xH[:])
-    s.v = bigint.Modexp(g, x, N)
+    s.v = bigint.Modexp(G, x, N)
 
     s.b = bigint.Randintn(N)
-    s.B = bigint.Modexp(g, s.b, N)
+    s.B = bigint.Modexp(G, s.b, N)
 
-    s.u = bigint.Frombytes(rand.Bytes(16))
+    s.U = bigint.Frombytes(rand.Bytes(16))
 }
 
 func NewServer(I, P string) *Server {
@@ -105,15 +105,15 @@ func NewServer(I, P string) *Server {
 func (s *Server) Send(c *Client) {
     c.Salt = s.Salt
     c.B = s.B
-    c.u = s.u
+    c.U = s.U
 }
 
 func (s *Server) hmac() []byte {
     // Using the given formula for S is too slow to calculate.
     // This version is simplified using modular arithmetic:
-    // S = modexp(((A % N) * modexp(v, u, N)) % N, b, N)
+    // S = modexp(((A % N) * modexp(v, U, N)) % N, b, N)
 
-    t1 := bigint.Modexp(s.v, s.u, N)
+    t1 := bigint.Modexp(s.v, s.U, N)
     t2 := new(big.Int).Mod(s.A, N)
     t3 := new(big.Int).Mul(t2, t1)
     base := new(big.Int).Mod(t3, N)
@@ -129,4 +129,8 @@ func (s *Server) Verify(c *Client) bool {
 
 func (s *Server) Verify2(hmac []byte) bool {
     return bytes.Compare(hmac, s.hmac()) == 0
+}
+
+func (s *Server) Clienthmac(c *Client) []byte {
+    return c.hmac()
 }
