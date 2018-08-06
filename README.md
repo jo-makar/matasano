@@ -53,7 +53,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Break SRP with a zero key
   - [x] Offline dictionary attack on simplified SRP
   - [x] Implement RSA
-  - [ ] Implement an E=3 RSA Broadcast attack
+  - [x] Implement an E=3 RSA Broadcast attack
 - Problem set 6
   - [ ] Implement Unpadded Message Recovery Oracle
   - [ ] Bleichenbacher's e=3 RSA Attack

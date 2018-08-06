@@ -160,7 +160,6 @@ func Invmod(a, m *big.Int) *big.Int {
         qi.Add(qi, big.NewInt(0))
     }
 
-
     if rv.Cmp(big.NewInt(0)) < 0 {
         rv.Add(rv, m)
     }
