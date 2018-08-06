@@ -25,8 +25,8 @@ This turns out to be trivially breakable:
 
 * Capture the ciphertext C
 * Let N and E be the public modulus and exponent respectively
-* Let S be a random number > 1 mod N. Doesn't matter what.
-* C' = ((S**E mod N) * C) mod N
+* Let S be a random number &gt; 1 mod N. Doesn't matter what.
+* `C' = ((S**E mod N) * C) mod N`
 * Submit C', which appears totally different from C, to the server,
   recovering P', which appears totally different from P
 
