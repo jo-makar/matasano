@@ -1,8 +1,6 @@
 # matasano
 Matasano (now NCC Group) crypto challenges' (https://cryptopals.com) solutions
 
-Note that the git commits are signed to prove that these solutions are my own.
-
 Briefly, these are a collection of exercises that demonstrate attacks on real-world cryptography.
 The exercises are derived from weaknesses in real-world systems and modern cryptographic
 constructions covering topics from symmetric ciphers such as AES (in a variety of modes), padding
