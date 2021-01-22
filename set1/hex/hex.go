@@ -1,62 +1,47 @@
 package hex
 
 import (
-    "errors"
-    "fmt"
+	"fmt"
 )
 
-// Decode hex to binary
 func Decode(src string) ([]byte, error) {
-    if len(src) % 2 != 0 {
-        return nil, errors.New("hex: bad length")
-    }
+	if len(src) % 2 != 0 {
+		return nil, fmt.Errorf("hex: bad length")
+	}
 
-    dest := make([]byte, len(src)/2)
+	table := make(map[byte]byte)
+	for c := byte('0'); c <= '9'; c++ { table[c] = c - '0' }
+	for c := byte('a'); c <= 'f'; c++ { table[c] = c - 'a' + 10 }
+	for c := byte('A'); c <= 'F'; c++ { table[c] = c - 'A' + 10 }
 
-    for i:=0; i<len(src)/2; i++ {
-        a, ok := hexchar(src[i*2])
-        if !ok {
-            return nil, errors.New(fmt.Sprintf("hex: bad char: %#x", src[i*2]))
-        }
+	dest := make([]byte, len(src)/2)
 
-        b, ok := hexchar(src[i*2+1])
-        if !ok {
-            return nil, errors.New(fmt.Sprintf("hex: bad char: %#x", src[i*2+1]))
-        }
+	for i := 0; i < len(src)/2; i++ {
+		a, ok := table[src[i*2]]
+		if !ok {
+			return nil, fmt.Errorf("hex: bad char: %#x", src[i*2])
+		}
 
-        dest[i] = (a<<4) | b
-    }
+		b, ok := table[src[i*2+1]]
+		if !ok {
+			return nil, fmt.Errorf("hex: bad char: %#x", src[i*2+1])
+		}
 
-    return dest, nil
+		dest[i] = (a<<4) | b
+	}
+
+	return dest, nil
 }
 
-// Encode binary to hex
 func Encode(src []byte) (string, error) {
-    const table = "0123456789abcdef"
+	const table = "0123456789abcdef"
 
-    dest := make([]byte, len(src)*2)
+	dest := make([]byte, len(src)*2)
 
-    for i:=0; i<len(src); i++ {
-        dest[i*2] = table[src[i] >> 4]
-        dest[i*2+1] = table[src[i] & 0x0f]
-    }
+	for i := 0; i < len(src); i++ {
+		dest[i*2]   = table[src[i] >> 4]
+		dest[i*2+1] = table[src[i] & 0x0f]
+	}
 
-    return string(dest), nil
-}
-
-func Encode2(src []byte) string {
-    rv, _ := Encode(src)
-    return rv
-}
-
-func hexchar(c byte) (byte, bool) {
-    if '0' <= c && c <= '9' {
-        return c-'0', true
-    } else if 'a' <= c && c <= 'f' {
-        return c-'a'+10, true
-    } else if 'A' <= c && c <= 'F' {
-        return c-'A'+10, true
-    } else {
-        return 0, false
-    }
+	return string(dest), nil
 }
