@@ -64,3 +64,5 @@ DSA and RSA, a variety of famous attacks, and so on.
 
 # License
 This work is released to the public domain.
+
+<!-- vim: set tw=100: -->
