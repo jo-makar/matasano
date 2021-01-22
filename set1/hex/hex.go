@@ -1,8 +1,6 @@
 package hex
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func Decode(src string) ([]byte, error) {
 	if len(src) % 2 != 0 {
