@@ -58,20 +58,19 @@ func main() {
 	}
 
 	var bestScore float32 = math.MaxFloat32
-	var bestByte byte
+	var bestKey byte
 
-	for b := 0; b < 256; b++ {
-		plaintext, _ := xor.SumRepeat(ciphertext, []byte{byte(b)})
+	for key := 0; key < 256; key++ {
+		plaintext, _ := xor.SumRepeat(ciphertext, []byte{byte(key)})
 
 		t1 := makeTable(bytes.NewReader(plaintext), 1)
 		t2 := makeTable(bytes.NewReader(plaintext), 2)
 
-		s := table1.Compare(t1) + table2.Compare(t2)
-		if s < bestScore {
-			bestScore, bestByte = s, byte(b)
+		if score := table1.Compare(t1) + table2.Compare(t2); score < bestScore {
+			bestScore, bestKey = score, byte(key)
 		}
 	}
 
-	bestPlaintext, _ := xor.SumRepeat(ciphertext, []byte{byte(bestByte)})
-	log.Printf("best byte is %#x producing %q", bestByte, bestPlaintext)
+	bestPlaintext, _ := xor.SumRepeat(ciphertext, []byte{byte(bestKey)})
+	log.Printf("best byte is %#x producing %q", bestKey, bestPlaintext)
 }
