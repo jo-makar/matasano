@@ -10,7 +10,7 @@ func Decode(src string) ([]byte, error) {
 	table := make(map[byte]byte)
 	for c := byte('A'); c <= 'Z'; c++ { table[c] = c - 'A' }
 	for c := byte('a'); c <= 'z'; c++ { table[c] = c - 'a' + 26 }
-	for c := byte('0'); c <= '9'; c++ { table[c] = c - 'A' + 52 }
+	for c := byte('0'); c <= '9'; c++ { table[c] = c - '0' + 52 }
 	table['+'] = 62
 	table['/'] = 63
 
