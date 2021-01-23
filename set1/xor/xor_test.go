@@ -29,3 +29,16 @@ func TestSum(t *testing.T) {
 		}
 	})
 }
+
+func TestSumRepeat(t *testing.T) {
+	t.Run("prob5", func(t *testing.T) {
+		plaintext := []byte("Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal\n")
+		key := []byte("ICE")
+		output := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f4f"
+
+		ciphertext, _ := xor.SumRepeat(plaintext, key)
+		if encoded, _ := hex.Encode(ciphertext); encoded != output {
+			t.Errorf("encoded != output")
+		}
+	})
+}
