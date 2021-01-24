@@ -35,7 +35,7 @@ The buffer at:
 https://gist.github.com/3132976 (prob10.txt)
 
 is intelligible (somewhat) when CBC decrypted against `YELLOW SUBMARINE` with an IV of all ASCII 0
-(`\x00\x00\x00` &amp;c)
+(`\x00\x00\x00` etc)
 
 # 11. Write an oracle function and use it to detect ECB
 
