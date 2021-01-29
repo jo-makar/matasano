@@ -34,7 +34,7 @@ The decryption here depends on a side-channel leak by the decryption function.
 
 The leak is the error message that the padding is valid or not.
 
-You can find 100 web pages on how this attack works, so I won't re-explain it. What I'll say is
+You can find 100 web pages on how this attack works, so I won't re-explain it.  What I'll say is
 this:
 
 The fundamental insight behind this attack is that the byte 01h is valid padding, and occur in 1/256
@@ -49,16 +49,18 @@ trials of "randomized" plaintexts produced by decrypting a tampered ciphertext.
 So you can assume that if you corrupt a decryption AND it had valid padding, you know what that
 padding byte is.
 
-It is easy to get tripped up on the fact that CBC plaintexts are "padded". Padding oracles have
-nothing to do with the actual padding on a CBC plaintext. It's an attack that targets a specific bit
-of code that handles decryption. You can mount a padding oracle on ANY CBC block, whether it's
+It is easy to get tripped up on the fact that CBC plaintexts are "padded".  Padding oracles have
+nothing to do with the actual padding on a CBC plaintext.  It's an attack that targets a specific
+bit of code that handles decryption. You can mount a padding oracle on ANY CBC block, whether it's
 padded or not.
 
 # 18. Implement CTR mode
 
 The string:
 
-`L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==`
+```
+L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==
+```
 
 decrypts to something approximating English in CTR mode, which is an AES block cipher mode that
 turns AES into a stream cipher, with the following parameters:
@@ -99,14 +101,14 @@ keystream = AES("YELLOW SUBMARINE",
 CTR mode does not require padding; when you run out of plaintext, you just stop XOR'ing keystream
 and stop generating keystream.
 
-Decryption is identical to encryption. Generate the same keystream, XOR, and recover the plaintext.
+Decryption is identical to encryption.  Generate the same keystream, XOR, and recover the plaintext.
 
 Decrypt the string at the top of this function, then use your CTR function to encrypt and decrypt
 other things.
 
 # 19. Break fixed-nonce CTR mode using substitions
 
-Take your CTR encrypt/decrypt function and fix its nonce value to 0. Generate a random AES key.
+Take your CTR encrypt/decrypt function and fix its nonce value to 0.  Generate a random AES key.
 
 In SUCCESSIVE ENCRYPTIONS (NOT in one big running CTR stream), encrypt each line of the base64
 decodes of the following, producing multiple independent ciphertexts:
@@ -157,7 +159,7 @@ QSB0ZXJyaWJsZSBiZWF1dHkgaXMgYm9ybi4=
 (This should produce 40 short CTR-encrypted ciphertexts).
 
 Because the CTR nonce wasn't randomized for each encryption, each ciphertext has been encrypted
-against the same keystream. This is very bad.
+against the same keystream.  This is very bad.
 
 Understanding that, like most stream ciphers (including RC4, and obviously any block cipher run in
 CTR mode), the actual "encryption" of a byte of data boils down to a single XOR operation, it should
@@ -170,8 +172,8 @@ And since the keystream is the same for every ciphertext:
 CIPHERTEXT-BYTE XOR KEYSTREAM-BYTE = PLAINTEXT-BYTE (ie, "you don't say!")
 
 Attack this cryptosystem "Carmen Sandiego" style: guess letters, use expected English language
-frequency to validate guesses, catch common English trigrams, and so on. Points for automating this,
-but part of the reason I'm having you do this is that I think this approach is suboptimal.
+frequency to validate guesses, catch common English trigrams, and so on.  Points for automating
+this, but part of the reason I'm having you do this is that I think this approach is suboptimal.
 
 # 20. Break fixed-nonce CTR mode using stream cipher analysis
 
@@ -179,7 +181,7 @@ At the following URL:
 
 https://gist.github.com/3336141 (prob20.txt)
 
-Find a similar set of Base64'd plaintext. Do with them exactly what you did with the first, but
+Find a similar set of Base64'd plaintext.  Do with them exactly what you did with the first, but
 solve the problem differently.
 
 Instead of making spot guesses at to known plaintext, treat the collection of ciphertexts the same
@@ -196,27 +198,27 @@ the length of the ciphertext you XOR'd.
 
 # 21. Implement the MT19937 Mersenne Twister RNG
 
-You can get the psuedocode for this from Wikipedia. If you're writing in Python, Ruby, or (gah) PHP,
-your language is probably already giving you MT19937 as "rand()"; don't use rand(). Write the RNG
-yourself.
+You can get the psuedocode for this from Wikipedia.  If you're writing in Python, Ruby, or (gah)
+PHP, your language is probably already giving you MT19937 as "rand()"; don't use rand(). Write the
+RNG yourself.
 
 # 22. "Crack" an MT19937 seed
 
-Make sure your MT19937 accepts an integer seed value. Test it (verify that you're getting the same
+Make sure your MT19937 accepts an integer seed value.  Test it (verify that you're getting the same
 sequence of outputs given a seed).
 
 Write a routine that performs the following operation:
 
 * Wait a random number of seconds between, I don't know, 40 and 1000.
 
-* Seeds the RNG with the current Unix timestamp
+* Seeds the RNG with the current Unix timestamp.
 
 * Waits a random number of seconds again.
 
 * Returns the first 32 bit output of the RNG.
 
-You get the idea. Go get coffee while it runs. Or just simulate the passage of time, although you're
-missing some of the fun of this exercise if you do that.
+You get the idea.  Go get coffee while it runs.  Or just simulate the passage of time, although
+you're missing some of the fun of this exercise if you do that.
 
 From the 32 bit RNG output, discover the seed.
 
@@ -224,7 +226,7 @@ From the 32 bit RNG output, discover the seed.
 
 The internal state of MT19937 consists of 624 32 bit integers.
 
-For each batch of 624 outputs, MT permutes that internal state. By permuting state regularly,
+For each batch of 624 outputs, MT permutes that internal state.  By permuting state regularly,
 MT19937 achieves a period of 2**19937, which is Big.
 
 Each time MT19937 is tapped, an element of its internal state is subjected to a tempering function
@@ -234,9 +236,9 @@ The tempering function is invertible; you can write an "untemper" function that 
 output and transforms it back into the corresponding element of the MT19937 state array.
 
 To invert the temper transform, apply the inverse of each of the operations in the temper transform
-in reverse order. There are two kinds of operations in the temper transform each applied twice; one
+in reverse order.  There are two kinds of operations in the temper transform each applied twice; one
 is an XOR against a right-shifted value, and the other is an XOR against a left-shifted value AND'd
-with a magic number. So you'll need code to invert the "right" and the "left" operation.
+with a magic number.  So you'll need code to invert the "right" and the "left" operation.
 
 Once you have "untemper" working, create a new MT19937 generator, tap it for 624 outputs, untemper
 each of them to recreate the state of the generator, and splice that state into a new instance of
@@ -244,17 +246,17 @@ the MT19937 generator.
 
 The new "spliced" generator should predict the values of the original.
 
-How would you modify MT19937 to make this attack hard? What would happen if you subjected each
+How would you modify MT19937 to make this attack hard?  What would happen if you subjected each
 tempered output to a cryptographic hash?
 
 # 24. Create the MT19937 stream cipher and break it
 
 You can create a trivial stream cipher out of any PRNG; use it to generate a sequence of 8 bit
-outputs and call those outputs a keystream. XOR each byte of plaintext with each successive byte of
+outputs and call those outputs a keystream.  XOR each byte of plaintext with each successive byte of
 keystream.
 
-Write the function that does this for MT19937 using a 16-bit seed. Verify that you can encrypt and
-decrypt properly. This code should look similar to your CTR code.
+Write the function that does this for MT19937 using a 16-bit seed.  Verify that you can encrypt and
+decrypt properly.  This code should look similar to your CTR code.
 
 Use your function to encrypt a known plaintext (say, 14 consecutive 'A' characters) prefixed by a
 random number of random characters.
@@ -266,3 +268,6 @@ time.
 
 Write a function to check if any given password token is actually the product of an MT19937 PRNG
 seeded with the current time.
+
+<!-- vim: set tw=100: -->
+<!-- kak: autowrap_column=100 -->
