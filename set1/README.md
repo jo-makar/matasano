@@ -155,3 +155,4 @@ Remember that the problem with ECB is that it is stateless and deterministic; th
 plaintext block will always produce the same 16 byte ciphertext.
 
 <!-- vim: set tw=100: -->
+<!-- kak: autowrap_column=100 -->

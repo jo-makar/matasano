@@ -252,3 +252,4 @@ You're relying on the fact that in CBC mode, a 1-bit error in a ciphertext block
 Before you implement this attack, answer this question: why does CBC mode have this property?
 
 <!-- vim: set tw=100: -->
+<!-- kak: autowrap_column=100 -->
