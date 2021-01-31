@@ -1,0 +1,7 @@
+=== RUN   TestCtrDecrypt
+=== RUN   TestCtrDecrypt/prob18
+    aes_test.go:22: "Yo, VIP Let's kick it Ice, Ice, baby Ice, Ice, baby "
+--- PASS: TestCtrDecrypt (0.00s)
+    --- PASS: TestCtrDecrypt/prob18 (0.00s)
+PASS
+ok  	command-line-arguments	0.002s
