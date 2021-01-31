@@ -49,3 +49,28 @@ func TestSeed(t *testing.T) {
 		}
 	})
 }
+
+func TestUntemper(t *testing.T) {
+	t.Run("untemper", func(t *testing.T) {
+		temper := func(y uint32) uint32 {
+			y ^= y >> 11
+			y ^= (y << 7) & 2636928640
+			y ^= (y << 15) & 4022730752
+			y ^= y >> 18
+			return y
+		}
+
+		states := []uint32{
+			0x00000000, 0xffffffff,
+			0xaaaaaaaa, 0x55555555,
+			0xcccccccc, 0x33333333, 0xc3c3c3c3,
+			0xa5a5a5a5, 0x5a5a5a5a,
+			0xcafebabe, 0xbeeffeed,
+		}
+		for _, state := range states {
+			if untempered := mt19937.Untemper(temper(state)); untempered != state {
+				t.Errorf("got %#08x, expected %#08x", untempered, state) 
+			}
+		}
+	})
+}
