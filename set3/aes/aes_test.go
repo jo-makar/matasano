@@ -8,7 +8,7 @@ import (
 )
 
 func TestCtrDecrypt(t *testing.T) {
-	t.Run  ("prob18", func(t *testing.T) {
+	t.Run("prob18", func(t *testing.T) {
 		ciphertext, err := base64.Decode("L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==")
 		if err != nil {
 			t.Fatal(err)
