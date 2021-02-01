@@ -1,75 +1,119 @@
 package main
 
 import (
-    "./base64"
-    "./rand"
-    aes2 "../set2/aes"
-    aes3 "../set3/aes"
-    "fmt"
-    "log"
-    "path/filepath"
-    "runtime"
+	"../set1/base64"
+	aesEcb "../set2/aes"
+	aesCtr "../set3/aes"
+
+	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
+	"log"
+	"math/rand"
+	"os"
+	"path/filepath"
+	"runtime"
+	"time"
 )
 
 func main() {
-    _, path, _, _ := runtime.Caller(0)
-    origciphertext, err := base64.Decodepath(filepath.Join(filepath.Dir(path), "prob25.txt"))
-    if err != nil {
-        log.Fatal(err)
-    }
+	//
+	// Retrieve and encrypt the plaintext
+	//
 
-    plaintext, err := aes2.Ecbdecrypt(origciphertext, []byte("YELLOW SUBMARINE"))
-    if err != nil {
-        log.Fatal(err)
-    }
+	// The problem didn't explicitly mention the file contents are ecb-encrypted with the key "YELLOW SUBMARINE"
 
-    // Re-encrypting in CTR mode with a random key
-    key := rand.Bytes(16)
-    nonce := rand.Uint64()
-    ciphertext, err := aes3.Ctrencrypt(plaintext, key, nonce)
-    if err != nil {
-        log.Fatal(err)
-    }
+	var origCiphertext []byte
 
-    // Edit the plaintext to be all zeros, then the new ciphertext is the cipher output.
-    // This output xor'ed with the original ciphertext gives the plaintext.
+	if _, p, _, ok := runtime.Caller(0); !ok {
+		log.Panic(errors.New("runtime.Caller() failed"))
+	} else {
+		path := filepath.Join(filepath.Dir(p), "prob25.txt")
+		file, err := os.Open(path)
+		if err != nil {
+			log.Panic(err)
+		}
+		defer file.Close()
 
-    plaintextedit := make([]byte, len(ciphertext))
-    keystream, err := edit(ciphertext, key, nonce, 0, plaintextedit)
-    if err != nil {
-        log.Fatal(err)
-    }
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			decoded, err := base64.Decode(scanner.Text())
+			if err != nil {
+				log.Panic(err)
+			}
+			origCiphertext = append(origCiphertext, decoded...)
+		}
+		if err := scanner.Err(); err != nil {
+			log.Panic(err)
+		}
+	}
 
-    recovered := make([]byte, len(ciphertext))
-    for i:=0; i<len(ciphertext); i++ {
-        recovered[i] = ciphertext[i] ^ keystream[i]
-    }
+	plaintext, err := aesEcb.EcbDecrypt(origCiphertext, []byte("YELLOW SUBMARINE"))
+	if err != nil {
+		log.Panic(err)
+	}
 
-    fmt.Println(recovered)
-    fmt.Println(string(recovered))
-}
+	rand.Seed(time.Now().UnixNano())
 
-func edit(ciphertext, key []byte, nonce uint64, offset int, newplaintext []byte) ([]byte, error) {
-    plaintext, err := aes3.Ctrdecrypt(ciphertext, key, nonce)
-    if err != nil {
-        return nil, err
-    }
+	randBytes := func(n uint) []byte {
+		b := make([]byte, n)
+		rand.Read(b)
+		return b
+	}
 
-    plaintext2 := make([]byte, len(plaintext))
-    copy(plaintext2, plaintext)
+	key := randBytes(aesCtr.BlockSize)
+	nonce := rand.Uint64()
 
-    for i, j := offset, 0; j < len(newplaintext); i, j = i+1, j+1 {
-        if i < len(plaintext2) {
-            plaintext2[i] = newplaintext[j]
-        } else {
-            plaintext2 = append(plaintext2, newplaintext[j])
-        }
-    }
+	ciphertext, err := aesCtr.CtrEncrypt(plaintext, key, nonce)
+	if err != nil {
+		log.Panic(err)
+	}
 
-    ciphertext2, err := aes3.Ctrencrypt(plaintext2, key, nonce)
-    if err != nil {
-        return nil, err
-    }
+	//
+	// Define the edit function
+	//
 
-    return ciphertext2, nil
+	edit := func(ciphertext, key []byte, nonce uint64, offset uint, newPlaintext []byte) []byte {
+		plaintext, err := aesCtr.CtrDecrypt(ciphertext, key, nonce)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		editedPlaintext := make([]byte, len(plaintext))
+		copy(editedPlaintext, plaintext)
+
+		for i, j := offset, 0; j < len(newPlaintext); i, j = i+1, j+1 {
+			if i < uint(len(editedPlaintext)) {
+				editedPlaintext[i] = newPlaintext[j]
+			} else {
+				editedPlaintext = append(editedPlaintext, newPlaintext[j])
+			}
+		}
+
+		editedCiphertext, err := aesCtr.CtrEncrypt(editedPlaintext, key, nonce)
+		if err != nil {
+			log.Panic(err)
+		}
+		return editedCiphertext
+	}
+
+	//
+	// Recover the original plaintext
+	//
+	// Change all the plaintext to be zeros, then the ciphertext will be the encrypted keystream.
+	// The encrypted keystream can be used to directly decrypt the original ciphertext.
+	//
+
+	keystream := edit(ciphertext, key, nonce, 0, make([]byte, len(ciphertext)))
+
+	recoveredPlaintext := make([]byte, len(ciphertext))
+	for i := 0; i < len(ciphertext); i++ {
+		recoveredPlaintext[i] = ciphertext[i] ^ keystream[i]
+	}
+
+	if !bytes.Equal(recoveredPlaintext, plaintext) {
+		log.Panic("recovered plaintext does not match")
+	}
+	fmt.Print(string(recoveredPlaintext))
 }

@@ -53,6 +53,9 @@ func main() {
 		}
 		plaintexts = append(plaintexts, plaintext)
 	}
+	if err := scanner.Err(); err != nil {
+		log.Panic(err)
+	}
 
 	key := randBytes(aes.BlockSize)
 	nonce := uint64(0)

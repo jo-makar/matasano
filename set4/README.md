@@ -1,6 +1,6 @@
 # 25. Break "random access read/write" AES CTR
 
-Back to CTR. Encrypt the recovered plaintext from
+Back to CTR.  Encrypt the recovered plaintext from
 
 https://gist.github.com/3132853 (prob25.txt)
 
@@ -8,7 +8,7 @@ https://gist.github.com/3132853 (prob25.txt)
 but hold on to it).
 
 Now, write the code that allows you to "seek" into the ciphertext, decrypt, and re-encrypt with
-different plaintext. Expose this as a function, like, "edit(ciphertext, key, offet, newtext)".
+different plaintext.  Expose this as a function, like, "edit(ciphertext, key, offet, newtext)".
 
 Imagine the "edit" function was exposed to attackers by means of an API call that didn't reveal the
 key or the original plaintext; the attacker has the ciphertext and controls the offset and "new
@@ -27,43 +27,51 @@ Inject an "admin=true" token.
 # 27. Recover the key from CBC with IV=Key
 
 Take your code from the CBC exercise (16) and modify it so that it repurposes the key for CBC
-encryption as the IV. Applications sometimes use the key as an IV on the auspices that both the
+encryption as the IV.  Applications sometimes use the key as an IV on the auspices that both the
 sender and the receiver have to know the key already, and can save some space by using it as both a
 key and an IV.
 
 Using the key as an IV is insecure; an attacker that can modify ciphertext in flight can get the
 receiver to decrypt a value that will reveal the key.
 
-The CBC code from exercise 16 encrypts a URL string. Verify each byte of the plaintext for ASCII
-compliance (ie, look for high-ASCII values). Noncompliant messages should raise an exception or
+The CBC code from exercise 16 encrypts a URL string.  Verify each byte of the plaintext for ASCII
+compliance (ie, look for high-ASCII values).  Noncompliant messages should raise an exception or
 return an error that includes the decrypted plaintext (this happens all the time in real systems,
 for what it's worth).
 
 Use your code to encrypt a message that is at least 3 blocks long:
 
-`AES-CBC(P_1, P_2, P_3) -> C_1, C_2, C_3`
+```
+AES-CBC(P_1, P_2, P_3) -> C_1, C_2, C_3
+```
 
 Modify the message (you are now the attacker):
 
-`C_1, C_2, C_3 -> C_1, 0, C_1`
+```
+C_1, C_2, C_3 -> C_1, 0, C_1
+```
 
 Decrypt the message (you are now the receiver) and raise the appropriate error if high-ASCII is
 found.
 
 As the attacker, recovering the plaintext from the error, extract the key:
 
-`P'_1 XOR P'_3`
+```
+P'_1 XOR P'_3
+```
 
 # 28. Implement a SHA-1 keyed MAC
 
-Find a SHA-1 implementation in the language you code in. Do not use the SHA-1 implementation your
+Find a SHA-1 implementation in the language you code in.  Do not use the SHA-1 implementation your
 language already provides (for instance, don't use the "Digest" library in Ruby, or call OpenSSL; in
 Ruby, you'd want a pure-Ruby SHA-1).
 
 Write a function to authenticate a message under a secret key by using a secret-prefix MAC, which is
 simply:
 
-`SHA1(key || message)`
+```
+SHA1(key || message)
+```
 
 Verify that you cannot tamper with the message without breaking the MAC you've produced, and that
 you can't produce a new MAC without knowing the secret key.
@@ -79,10 +87,12 @@ Since the key precedes the data in secret-prefix, any additional data you feed t
 this fashion will appear to have been hashed with the secret key.
 
 To carry out the attack, you'll need to account for the fact that SHA-1 is "padded" with the
-bit-length of the message; your forged message will need to include that padding. We call this "glue
-padding". The final message you actually forge will be:
+bit-length of the message; your forged message will need to include that padding.  We call this
+"glue padding".  The final message you actually forge will be:
 
-`SHA1(key || original-message || glue-padding || new-message)`
+```
+SHA1(key || original-message || glue-padding || new-message)
+```
 
 (where the final padding on the whole constructed message is implied)
 
@@ -100,8 +110,8 @@ Now, take the SHA-1 secret-prefix MAC of the message you want to forge --- this 
 --- and break it into 32 bit SHA-1 registers (SHA-1 calls them "a", "b", "c", &c).
 
 Modify your SHA-1 implementation so that callers can pass in new values for "a", "b", "c" &c (they
-normally start at magic numbers). With the registers "fixated", hash the additional data you want to
-forge.
+normally start at magic numbers).  With the registers "fixated", hash the additional data you want
+to forge.
 
 Using this attack, generate a secret-prefix MAC under a secret key (choose a random word from
 /usr/share/dict/words or something) of the string:
@@ -112,13 +122,13 @@ Forge a variant of this message that ends with ";admin=true".
 
 # 30. Break an MD4 keyed MAC using length extension
 
-Second verse, same as the first, but use MD4 instead of SHA-1. Having done this attack once against
+Second verse, same as the first, but use MD4 instead of SHA-1.  Having done this attack once against
 SHA-1, the MD4 variant should take much less time; mostly just the time you'll spend Googling for an
 implementation of MD4.
 
 # 31. Implement HMAC-SHA1 and break it with an artificial timing leak
 
-The psuedocode on Wikipedia should be enough. HMAC is very easy.
+The psuedocode on Wikipedia should be enough.  HMAC is very easy.
 
 Using the web framework of your choosing (Sinatra, web.py, whatever), write a tiny application that
 has a URL that takes a "file" argument and a "signature" argument, like so:
@@ -135,13 +145,17 @@ byte-at-a-time comparisons with early exit (ie, return false at the first non-ma
 In the loop for "insecure_compare", add a 50ms sleep (sleep 50ms after each byte).
 
 Use your "insecure_compare" function to verify the HMACs on incoming requests, and test that the
-whole contraption works. Return a 500 if the MAC is invalid, and a 200 if it's OK.
+whole contraption works.  Return a 500 if the MAC is invalid, and a 200 if it's OK.
 
 Using the timing leak in this application, write a program that discovers the valid MAC for any
 file.
 
 # 32. Break HMAC-SHA1 with a slightly less artificial timing leak
 
-Reduce the sleep in your "insecure_compare" until your previous solution breaks. (Try 5ms to start.)
+Reduce the sleep in your "insecure_compare" until your previous solution breaks.  (Try 5ms to
+start.)
 
 Now break it again.
+
+<!-- vim: set tw=100: -->
+<!-- kak: autowrap_column=100 -->
