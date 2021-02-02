@@ -3,16 +3,9 @@
 // license that can be found in the LICENSE file.
 
 // Package md4 implements the MD4 hash algorithm as defined in RFC 1320.
-package md4 // import "golang.org/x/crypto/md4"
+package md4
 
-import (
-	"crypto"
-	"hash"
-)
-
-func init() {
-	crypto.RegisterHash(crypto.MD4, New)
-}
+import "encoding/binary"
 
 // The size of an MD4 checksum in bytes.
 const Size = 16
@@ -35,6 +28,7 @@ type digest struct {
 	nx  int
 	len uint64
 }
+type Md4Hash = *digest
 
 func (d *digest) Reset() {
 	d.s[0] = _Init0
@@ -45,23 +39,32 @@ func (d *digest) Reset() {
 	d.len = 0
 }
 
-// New returns a new hash.Hash computing the MD4 checksum.
-func New() hash.Hash {
+// New returns a new Md4Hash computing the MD4 checksum.
+func New() Md4Hash {
 	d := new(digest)
 	d.Reset()
 	return d
 }
 
-func New2(s [4]uint32, len uint64) hash.Hash {
-        d := new(digest)
-        d.Reset()
+func NewState(s [4]uint32, len uint64) Md4Hash {
+	d := new(digest)
+	d.Reset()
 
-        // Copy array values
-        d.s = s
+	d.s = s
+	d.len = len
+	return d
+}
 
-        d.len = len
+func ExtractState(sum []byte) [4]uint32 {
+	if len(sum) != Size {
+		panic("len(sum) != Size")
+	}
 
-        return d
+	var s [4]uint32
+	for i := 0; i < len(s); i++ {
+		s[i] = binary.LittleEndian.Uint32(sum[i*4:(i+1)*4])
+	}
+	return s
 }
 
 func (d *digest) Size() int { return Size }
