@@ -5,14 +5,7 @@
 // Package sha1 implements the SHA1 hash algorithm as defined in RFC 3174.
 package sha1
 
-import (
-	"crypto"
-	"hash"
-)
-
-func init() {
-	crypto.RegisterHash(crypto.SHA1, New)
-}
+import "encoding/binary"
 
 // The size of a SHA1 checksum in bytes.
 const Size = 20
@@ -36,6 +29,7 @@ type digest struct {
 	nx  int
 	len uint64
 }
+type Sha1Hash = *digest
 
 func (d *digest) Reset() {
 	d.h[0] = init0
@@ -47,23 +41,32 @@ func (d *digest) Reset() {
 	d.len = 0
 }
 
-// New returns a new hash.Hash computing the SHA1 checksum.
-func New() hash.Hash {
+// New returns a new Sha1Hash computing the SHA1 checksum.
+func New() Sha1Hash {
 	d := new(digest)
 	d.Reset()
 	return d
 }
 
-func New2(h [5]uint32, len uint64) hash.Hash {
-        d := new(digest)
-        d.Reset()
+func NewState(h [5]uint32, len uint64) Sha1Hash {
+	d := new(digest)
+	d.Reset()
 
-        // Copy array values
-        d.h = h
+	d.h = h
+	d.len = len
+	return d
+}
 
-        d.len = len
+func ExtractState(sum []byte) [5]uint32 {
+	if len(sum) != Size {
+		panic("len(sum) != Size")
+	}
 
-        return d
+	var h [5]uint32
+	for i := 0; i < len(h); i++ {
+		h[i] = binary.BigEndian.Uint32(sum[i*4:(i+1)*4])
+	}
+	return h
 }
 
 func (d *digest) Size() int { return Size }
