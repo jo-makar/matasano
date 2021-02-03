@@ -3,15 +3,15 @@
 For one of the most important algorithms in cryptography this exercise couldn't be a whole lot
 easier.
 
-Set "p" to 37 and "g" to 5. This algorithm is so easy I'm not even going to explain it. Just do what
-I do.
+Set "p" to 37 and "g" to 5.  This algorithm is so easy I'm not even going to explain it.  Just do
+what I do.
 
-Generate "a", a random number mod 37. Now generate "A", which is "g" raised to the "a" power mod 37
+Generate "a", a random number mod 37.  Now generate "A", which is "g" raised to the "a" power mod 37
 --- A = (g**a) % p.
 
 Do the same for "b" and "B".
 
-"A" and "B" are public keys. Generate a session key with them; set "s" to "B" raised to the "a"
+"A" and "B" are public keys.  Generate a session key with them; set "s" to "B" raised to the "a"
 power mod 37 --- s = (B**a) % p.
 
 Do the same with A**b, check that you come up with the same "s".
@@ -19,7 +19,7 @@ Do the same with A**b, check that you come up with the same "s".
 To turn "s" into a key, you can just hash it to create 128 bits of key material (or SHA256 it to
 create a key for encrypting and a key for a MAC).
 
-Ok that was fun, now repeat the exercise with bignums like in the real world. Here are parameters
+Ok that was fun, now repeat the exercise with bignums like in the real world.  Here are parameters
 NIST likes:
 
 ```
@@ -40,13 +40,13 @@ This is very easy to do in Python or Ruby or other high-level languages that aut
 bignums, but it isn't "hard" anywhere.
 
 Note that you'll need to write your own modexp (this is blackboard math, don't freak out), because
-you'll blow out your bignum library raising "a" to the 1024-bit-numberth power. You can find modexp
+you'll blow out your bignum library raising "a" to the 1024-bit-numberth power.  You can find modexp
 routines on Rosetta Code for most languages.
 
 # 34. Implement a MITM key-fixing attack on Diffie-Hellman with parameter injection
 
-Use the code you just worked out to build a protocol and an "echo" bot. You don't actually have to
-do the network part of this if you don't want; just simulate that. The protocol is:
+Use the code you just worked out to build a protocol and an "echo" bot.  You don't actually have to
+do the network part of this if you don't want; just simulate that.  The protocol is:
 
 ```
 A->B            Send "p", "g", "A"
@@ -71,14 +71,14 @@ B->M            Send AES-CBC(SHA1(s)[0:16], iv=random(16), A's msg) + iv
 M->A            Relay that to A
 ```
 
-M should be able to decrypt the messages. "A" and "B" in the protocol --- the public keys, over the
+M should be able to decrypt the messages.  "A" and "B" in the protocol --- the public keys, over the
 wire --- have been swapped out with "p".  Do the DH math on this quickly to see what that does to
 the predictability of the key.
 
 Decrypt the messages from M's vantage point as they go by.
 
 Note that you don't actually have to inject bogus parameters to make this attack work; you could
-just generate Ma, MA, Mb, and MB as valid DH parameters to do a generic MITM attack. But do the
+just generate Ma, MA, Mb, and MB as valid DH parameters to do a generic MITM attack.  But do the
 parameter injection attack; it's going to come up again.
 
 # 35. Implement DH with negotiated groups, and break with malicious "g" parameters
@@ -105,7 +105,7 @@ Write attacks for each.
 # 36. Implement Secure Remote Password
 
 To understand SRP, look at how you generate an AES key from DH; now, just observe you can do the
-"opposite" operation and generate a numeric parameter from a hash. Then:
+"opposite" operation and generate a numeric parameter from a hash.  Then:
 
 Replace A and B with C and S (client & server)
 
@@ -132,20 +132,20 @@ S->C            Send "OK" if HMAC-SHA256(K, salt) validates
 You're going to want to do this at a REPL of some sort; it may take a couple tries.
 
 It doesn't matter how you go from integer to string or string to integer (where things are going in
-or out of SHA256) as long as you do it consistently. I tested by using the ASCII decimal
+or out of SHA256) as long as you do it consistently.  I tested by using the ASCII decimal
 representation of integers as input to SHA256, and by converting the hexdigest to an integer when
 processing its output.
 
-This is basically Diffie Hellman with a tweak of mixing the password into the public keys. The
+This is basically Diffie Hellman with a tweak of mixing the password into the public keys.  The
 server also takes an extra step to avoid storing an easily crackable password-equivalent.
 
 # 37. Break SRP with a zero key
 
-Get your SRP working in an actual client-server setting. "Log in" with a valid password using the
+Get your SRP working in an actual client-server setting.  "Log in" with a valid password using the
 protocol.
 
-Now log in without your password by having the client send 0 as its "A" value. What does this to the
-"S" value that both sides compute?
+Now log in without your password by having the client send 0 as its "A" value.  What does this to
+the "S" value that both sides compute?
 
 Now log in without your password by having the client send N, N*2, &c.
 
@@ -177,15 +177,15 @@ Crack the password from A's HMAC-SHA256(K, salt).
 
 # 39. Implement RSA
 
-There are two annoying things about implementing RSA. Both of them involve key generation; the
+There are two annoying things about implementing RSA.  Both of them involve key generation; the
 actual encryption/decryption in RSA is trivial.
 
-First, you need to generate random primes. You can't just agree on a prime ahead of time, like you
-do in DH. You can write this algorithm yourself, but I just cheat and use OpenSSL's BN library to do
-the work.
+First, you need to generate random primes.  You can't just agree on a prime ahead of time, like you
+do in DH.  You can write this algorithm yourself, but I just cheat and use OpenSSL's BN library to
+do the work.
 
 The second is that you need an "invmod" operation (the multiplicative inverse), which is not an
-operation that is wired into your language. The algorithm is just a couple lines, but I always lose
+operation that is wired into your language.  The algorithm is just a couple lines, but I always lose
 an hour getting it to work.
 
 I recommend you not bother with primegen, but do take the time to get your own EGCD and invmod
@@ -193,32 +193,31 @@ algorithm working.
 
 Now:
 
-* Generate 2 random primes. We'll use small numbers to start, so you
- can just pick them out of a prime table. Call them "p" and "q".
+* Generate 2 random primes. We'll use small numbers to start, so you can just pick them out of a
+  prime table.  Call them "p" and "q".
 * Let n be p * q. Your RSA math is modulo n.
-* Let et be (p-1)*(q-1) (the "totient"). You need this value only for
- keygen.
+* Let et be (p-1)*(q-1) (the "totient").  You need this value only for keygen.
 * Let e be 3.
 * Compute d = invmod(e, et). invmod(17, 3120) is 2753.
 
-Your public key is [e, n]. Your private key is [d, n].
+Your public key is [e, n].  Your private key is [d, n].
 
-To encrypt: `c = m**e%n`. To decrypt: `m = c**d%n`
+To encrypt: `c = m**e%n`.  To decrypt: `m = c**d%n`
 
 Test this out with a number, like "42".
 
 Repeat with bignum primes (keep e=3).
 
 Finally, to encrypt a string, do something cheesy, like convert the string to hex and put "0x" on
-the front of it to turn it into a number. The math cares not how stupidly you feed it strings.
+the front of it to turn it into a number.  The math cares not how stupidly you feed it strings.
 
 # 40. Implement an E=3 RSA Broadcast attack
 
-Assume you're a Javascript programmer. That is, you're using a naive handrolled RSA to encrypt
+Assume you're a Javascript programmer.  That is, you're using a naive handrolled RSA to encrypt
 without padding.
 
 Assume you can be coerced into encrypting the same plaintext three times, under three different
-public keys. You can; it's happened.
+public keys.  You can; it's happened.
 
 Then an attacker can trivially decrypt your message, by:
 
@@ -230,7 +229,7 @@ mod their respective pubkeys)
 3. Taking the cube root of the resulting number
 
 The CRT says you can take any number and represent it as the combination of a series of residues mod
-a series of moduli. In the three-residue case, you have:
+a series of moduli.  In the three-residue case, you have:
 
 ```
 result =
@@ -252,3 +251,6 @@ N_012 is the product of all three moduli
 
 To decrypt RSA using a simple cube root, leave off the final modulus operation; just take the raw
 accumulated result and cube-root it.
+
+<!-- vim: set tw=100: -->
+<!-- kak: autowrap_column=100 -->
