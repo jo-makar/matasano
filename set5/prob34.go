@@ -116,12 +116,19 @@ func main() {
 
 	intercepted1 := sendMsg(fakeA, fakeB, plaintext1)
 	log.Printf("decrypted A->B intercepted message: %q", decryptMsg(intercepted1))
+	if decryptMsg(intercepted1) != plaintext1 {
+		log.Panic("intercepted message incorrectly decrypted")
+	}
 
 	plaintext2 := "affirmative, eta 1h"
 	if !verifyMsg(fakeB, fakeA, sendMsg(fakeB, fakeA, plaintext2), plaintext2) {
 		log.Panic("message unverified")
 	}
 
+
 	intercepted2 := sendMsg(fakeB, fakeA, plaintext2)
 	log.Printf("decrypted B->A intercepted message: %q", decryptMsg(intercepted2))
+	if decryptMsg(intercepted2) != plaintext2 {
+		log.Panic("intercepted message incorrectly decrypted")
+	}
 }
