@@ -55,9 +55,10 @@ func NewDhWithParams(P, G *big.Int) *Dh {
 }
 
 func (d *Dh) Session(e *Dh) *big.Int {
-	if d.P.Cmp(e.P) != 0 || d.G.Cmp(e.G) != 0 {
-		log.Panic("dh: mismatched params")
-	}
+	// Disabled this check for the sake of a parameter injection attack demo
+	//if d.P.Cmp(e.P) != 0 || d.G.Cmp(e.G) != 0 {
+	//	log.Panic("dh: mismatched params")
+	//}
 
 	// Which is equal to ....Exp(d.A, e.a, d.P)
 	return new(big.Int).Exp(e.A, d.a, d.P)
