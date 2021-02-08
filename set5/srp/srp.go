@@ -136,7 +136,46 @@ func NewServer(i, p string) *Server {
 	return &s
 }
 
-func (s *Server) Verify(c *Client) bool {
+func HmacSha256(key, msg []byte) [sha256.Size]byte {
+	keyPrime := make([]byte, len(key))
+	copy(keyPrime, key)
+
+	if len(keyPrime) > sha256.BlockSize {
+		s := sha256.Sum256(keyPrime)
+		keyPrime = s[:]
+	}
+	if len(keyPrime) < sha256.BlockSize {
+		keyPrime = append(keyPrime, make([]byte, sha256.BlockSize-len(keyPrime))...)
+	}
+
+	paddingBlock := func(b byte) [sha256.BlockSize]byte {
+		var block [sha256.BlockSize]byte
+		for i := 0; i < len(block); i++ {
+			block[i] = b
+		}
+		return block
+	}
+
+	outerPad := paddingBlock(0x5c)
+	innerPad := paddingBlock(0x36)
+
+	outerBlock := make([]byte, sha256.BlockSize)
+	for i := 0; i < len(outerBlock); i++ {
+		outerBlock[i] = keyPrime[i] ^ outerPad[i]
+	}
+
+	innerBlock := make([]byte, sha256.BlockSize)
+	for i := 0; i < len(innerBlock); i++ {
+		innerBlock[i] = keyPrime[i] ^ innerPad[i]
+	}
+	innerBlock = append(innerBlock, msg...)
+
+	s := sha256.Sum256(innerBlock)
+	outerBlock = append(outerBlock, s[:]...)
+	return sha256.Sum256(outerBlock)
+}
+
+func (s *Server) VerifyClient(c *Client) bool {
 	if s.I != c.I {
 		log.Panic("srp: I mismatch")
 	}
@@ -146,45 +185,6 @@ func (s *Server) Verify(c *Client) bool {
 	buf.Write(s.B.Bytes())
 	uH := sha256.Sum256(buf.Bytes())
 	u := bigIntFromBytes(uH[:])
-
-	hmacSha256 := func(key, msg []byte) [sha256.Size]byte {
-		keyPrime := make([]byte, len(key))
-		copy(keyPrime, key)
-
-		if len(keyPrime) > sha256.BlockSize {
-			s := sha256.Sum256(keyPrime)
-			keyPrime = s[:]
-		}
-		if len(keyPrime) < sha256.BlockSize {
-			keyPrime = append(keyPrime, make([]byte, sha256.BlockSize-len(keyPrime))...)
-		}
-
-		paddingBlock := func(b byte) [sha256.BlockSize]byte {
-			var block [sha256.BlockSize]byte
-			for i := 0; i < len(block); i++ {
-				block[i] = b
-			}
-			return block
-		}
-
-		outerPad := paddingBlock(0x5c)
-		innerPad := paddingBlock(0x36)
-
-		outerBlock := make([]byte, sha256.BlockSize)
-		for i := 0; i < len(outerBlock); i++ {
-			outerBlock[i] = keyPrime[i] ^ outerPad[i]
-		}
-
-		innerBlock := make([]byte, sha256.BlockSize)
-		for i := 0; i < len(innerBlock); i++ {
-			innerBlock[i] = keyPrime[i] ^ innerPad[i]
-		}
-		innerBlock = append(innerBlock, msg...)
-
-		s := sha256.Sum256(innerBlock)
-		outerBlock = append(outerBlock, s[:]...)
-		return sha256.Sum256(outerBlock)
-	}
 
 	//
 	// Client HMAC
@@ -219,7 +219,7 @@ func (s *Server) Verify(c *Client) bool {
 		}
 
 		K := sha256.Sum256(S.Bytes())
-		clientHmac = hmacSha256(K[:], s.Salt)
+		clientHmac = HmacSha256(K[:], s.Salt)
 	}
 
 	//
@@ -244,8 +244,43 @@ func (s *Server) Verify(c *Client) bool {
 		}
 
 		K := sha256.Sum256(S.Bytes())
-		serverHmac = hmacSha256(K[:], s.Salt)
+		serverHmac = HmacSha256(K[:], s.Salt)
 	}
 
 	return bytes.Equal(clientHmac[:], serverHmac[:])
+}
+
+func (s *Server) VerifyHmac(clientA *big.Int, clientHmac []byte) bool {
+	var buf bytes.Buffer
+	buf.Write(clientA.Bytes())
+	buf.Write(s.B.Bytes())
+	uH := sha256.Sum256(buf.Bytes())
+	u := bigIntFromBytes(uH[:])
+
+	//
+	// Server HMAC
+	//
+
+	var serverHmac [sha256.Size]byte
+	{
+		var S *big.Int
+		if false {
+			S = new(big.Int).Mul(clientA, new(big.Int).Exp(s.v, u, nil))
+		} else {
+			// Simplified the given formula for S (original too slow to calculate)
+			// S = ((((A % N) * (v**u % N)) % N) ** b) % N
+
+			// base = ((A % N) * (v**u % N)) % N
+			b1 := new(big.Int).Exp(s.v, u, NistN)
+			b2 := new(big.Int).Mul(new(big.Int).Mod(clientA, NistN), b1)
+			base := new(big.Int).Mod(b2, NistN)
+
+			S = new(big.Int).Exp(base, s.b, NistN)
+		}
+
+		K := sha256.Sum256(S.Bytes())
+		serverHmac = HmacSha256(K[:], s.Salt)
+	}
+
+	return bytes.Equal(clientHmac, serverHmac[:])
 }
