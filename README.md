@@ -53,7 +53,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement RSA
   - [x] Implement an E=3 RSA Broadcast attack
 - Problem set 6
-  - [ ] Implement Unpadded Message Recovery Oracle
+  - [x] Implement Unpadded Message Recovery Oracle
   - [ ] Bleichenbacher's e=3 RSA Attack
   - [ ] DSA Key Recovery From Nonce
   - [ ] DSA Nonce Recovery From Repeated Nonce

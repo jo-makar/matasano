@@ -1,12 +1,12 @@
 # 41. Implement Unpadded Message Recovery Oracle
 
-Nate Lawson says we should stop calling it "RSA padding" and start calling it "RSA armoring". Here's
-why.
+Nate Lawson says we should stop calling it "RSA padding" and start calling it "RSA armoring".
+Here's why.
 
 Imagine a web application, again with the Javascript encryption, taking RSA-encrypted messages which
 (again: Javascript) aren't padded before encryption at all.
 
-You can submit an arbitrary RSA blob and the server will return plaintext. But you can't submit the
+You can submit an arbitrary RSA blob and the server will return plaintext.  But you can't submit the
 same message twice: let's say the server keeps hashes of previous messages for some liveness
 interval, and that the message has an embedded timestamp:
 
@@ -17,18 +17,18 @@ interval, and that the message has an embedded timestamp:
 }
 ```
 
-You'd like to capture other people's messages and use the server to decrypt them. But when you try,
-the server takes the hash of the ciphertext and uses it to reject the request. Any bit you flip in
+You'd like to capture other people's messages and use the server to decrypt them.  But when you try,
+the server takes the hash of the ciphertext and uses it to reject the request.  Any bit you flip in
 the ciphertext irrevocably scrambles the decryption.
 
 This turns out to be trivially breakable:
 
-* Capture the ciphertext C
-* Let N and E be the public modulus and exponent respectively
-* Let S be a random number &gt; 1 mod N. Doesn't matter what.
+* Capture the ciphertext C.
+* Let N and E be the public modulus and exponent respectively.
+* Let S be a random number &gt; 1 mod N.  Doesn't matter what.
 * `C' = ((S**E mod N) * C) mod N`
-* Submit C', which appears totally different from C, to the server,
-  recovering P', which appears totally different from P
+* Submit C', which appears totally different from C, to the server, recovering P', which appears
+  totally different from P.
 
 ```
        P'
@@ -48,20 +48,24 @@ RSA with an encrypting exponent of 3 is popular, because it makes the RSA math f
 
 With e=3 RSA, encryption is just cubing a number mod the public encryption modulus:
 
-`c = m ** 3 % n`
+```
+c = m ** 3 % n
+```
 
-e=3 is secure as long as we can make assumptions about the message blocks we're encrypting. The
+e=3 is secure as long as we can make assumptions about the message blocks we're encrypting.  The
 worry with low-exponent RSA is that the message blocks we process won't be large enough to wrap the
-modulus after being cubed. The block 00:02 (imagine sufficient zero-padding) can be "encrypted" in
+modulus after being cubed.  The block 00:02 (imagine sufficient zero-padding) can be "encrypted" in
 e=3 RSA; it is simply 00:08.
 
 When RSA is used to sign, rather than encrypt, the operations are reversed; the verifier "decrypts"
-the message by cubing it. This produces a "plaintext" which the verifier checks for validity.
+the message by cubing it.  This produces a "plaintext" which the verifier checks for validity.
 
-When you use RSA to sign a message, you supply it a block input that contains a message digest. The
+When you use RSA to sign a message, you supply it a block input that contains a message digest.  The
 PKCS1.5 standard formats that block as:
 
-`00h 01h ffh ffh ... ffh ffh 00h ASN.1 GOOP HASH`
+```
+00h 01h ffh ffh ... ffh ffh 00h ASN.1 GOOP HASH
+```
 
 As intended, the ffh bytes in that block expand to fill the whole block, producing a
 "right-justified" hash (the last byte of the hash is the last byte of the message).
@@ -70,23 +74,23 @@ There was, 7 years ago, a common implementation flaw with RSA verifiers: they'd 
 "decrypting" them (cubing them modulo the public exponent) and then "parsing" them by looking for
 00h 01h ... ffh 00h ASN.1 HASH.
 
-This is a bug because it implies the verifier isn't checking all the padding. If you don't check the
-padding, you leave open the possibility that instead of hundreds of ffh bytes, you have only a few,
-which if you think about it means there could be squizzilions of possible numbers that could produce
-a valid-looking signature.
+This is a bug because it implies the verifier isn't checking all the padding.  If you don't check
+the padding, you leave open the possibility that instead of hundreds of ffh bytes, you have only a
+few, which if you think about it means there could be squizzilions of possible numbers that could
+produce a valid-looking signature.
 
-How to find such a block? Find a number that when cubed (a) doesn't wrap the modulus (thus bypassing
-the key entirely) and (b) produces a block that starts "00h 01h ffh ... 00h ASN.1 HASH".
+How to find such a block?  Find a number that when cubed (a) doesn't wrap the modulus (thus
+bypassing the key entirely) and (b) produces a block that starts "00h 01h ffh ... 00h ASN.1 HASH".
 
 There are two ways to approach this problem:
 
-* You can work from Hal Finney's writeup, available on Google, of how
-  Bleichenbacher explained the math "so that you can do it by hand with a pencil".
-* You can implement an integer cube root in your language, format the
-  message block you want to forge, leaving sufficient trailing zeros at the end to fill with
-  garbage, then take the cube-root of that block.
+* You can work from Hal Finney's writeup, available on Google, of how Bleichenbacher explained the
+  math "so that you can do it by hand with a pencil".
+* You can implement an integer cube root in your language, format the message block you want to
+  forge, leaving sufficient trailing zeros at the end to fill with garbage, then take the cube-root
+  of that block.
 
-Forge a 1024-bit RSA signature for the string "hi mom". Make sure your implementation actually
+Forge a 1024-bit RSA signature for the string "hi mom".  Make sure your implementation actually
 accepts the signature!
 
 # 43. DSA Key Recovery From Nonce
@@ -119,7 +123,7 @@ g = 5958c9d3898b224b12672c0b98e06c60df923cb8bc999d119
 
 ("But I want smaller params!" Then generate them yourself.)
 
-The DSA signing operation generates a random subkey "k". You know this because you implemented the
+The DSA signing operation generates a random subkey "k".  You know this because you implemented the
 DSA sign operation.
 
 This is the first and easier of two challenges regarding the DSA "k" subkey.
@@ -132,9 +136,10 @@ x = ----------------  mod q
             r
 ```
 
-Do this a couple times to prove to yourself that you grok it. Capture it in a function of some sort.
+Do this a couple times to prove to yourself that you grok it.  Capture it in a function of some
+sort.
 
-Now then. I used the parameters above. I generated a keypair. My pubkey is:
+Now then.  I used the parameters above.  I generated a keypair.  My pubkey is:
 
 ```
 y = 84ad4719d044495496a3201c8ff484feb45b962e7302e56a392aee4
@@ -167,7 +172,9 @@ What's my private key?
 
 Its SHA-1 fingerprint (after being converted to hex) is:
 
-`0954edd5e0afe5542a4adf012611a91912a3ec16`
+```
+0954edd5e0afe5542a4adf012611a91912a3ec16
+```
 
 Obviously, it also generates the same signature for that string.
 
@@ -192,8 +199,8 @@ y = 2d026f4bf30195ede3a088da85e398ef869611d0f68f07
 
 (using the same domain parameters as the previous exercise)
 
-It should not be hard to find the messages for which we have accidentally used a repeated "k". Given
-a pair of such messages, you can discover the "k" we used with the following formula:
+It should not be hard to find the messages for which we have accidentally used a repeated "k".
+Given a pair of such messages, you can discover the "k" we used with the following formula:
 
 ```
     (m1 - m2)
@@ -202,28 +209,30 @@ k = --------- mod q
 ```
 
 Remember all this math is mod q; s2 may be larger than s1, for instance, which isn't a problem if
-you're doing the subtraction mod q. If you're like me, you'll definitely lose an hour to forgetting
-a paren or a mod q. (And don't forget that modular inverse function!)
+you're doing the subtraction mod q.  If you're like me, you'll definitely lose an hour to forgetting
+a paren or a mod q.  (And don't forget that modular inverse function!)
 
-What's my private key? Its SHA-1 (from hex) is:
+What's my private key?  Its SHA-1 (from hex) is:
 
-`ca8f6f7c66fa362d40760d135b763eb8527d3d52`
+```
+ca8f6f7c66fa362d40760d135b763eb8527d3d52
+```
 
 # 45. DSA Parameter Tampering
 
-Take your DSA code from the previous exercise. Imagine it as part of an algorithm in which the
+Take your DSA code from the previous exercise.  Imagine it as part of an algorithm in which the
 client was allowed to propose domain parameters (the p and q moduli, and the g generator).
 
-This would be bad, because attackers could trick victims into accepting bad parameters. Vaudenay
+This would be bad, because attackers could trick victims into accepting bad parameters.  Vaudenay
 gave two examples of bad generator parameters: generators that were 0 mod p, and generators that
 were 1 mod p.
 
-Use the parameters from the previous exercise, but substitute 0 for "g". Generate a signature. You
-will notice something bad. Verify the signature. Now verify any other signature, for any other
+Use the parameters from the previous exercise, but substitute 0 for "g".  Generate a signature.  You
+will notice something bad.  Verify the signature.  Now verify any other signature, for any other
 string.
 
-Now, try (p+1) as "g". With this "g", you can generate a magic signature s, r for any DSA public key
-that will validate against any string. For arbitrary z:
+Now, try (p+1) as "g".  With this "g", you can generate a magic signature s, r for any DSA public
+key that will validate against any string.  For arbitrary z:
 
 ```
 r = ((y**z) % p) % q
@@ -233,7 +242,7 @@ s =  --- % q
       z
 ```
 
-Sign "Hello, world". And "Goodbye, world".
+Sign "Hello, world".  And "Goodbye, world".
 
 # 46. Decrypt RSA From One-Bit Oracle
 
@@ -243,7 +252,7 @@ for why pure number-theoretic encryption is terrifying).
 Generate a 1024 bit RSA key pair.
 
 Write an oracle function that uses the private key to answer the question "is the plaintext of this
-message even or odd" (is the last bit of the message 0 or 1). Imagine for instance a server that
+message even or odd" (is the last bit of the message 0 or 1).  Imagine for instance a server that
 accepted RSA-encrypted messages and checked the parity of their decryption to validate them, and
 spat out an error if they were of the wrong parity.
 
@@ -253,20 +262,21 @@ and nothing else.
 Take the following string and un-Base64 it in your code (without looking at it!) and encrypt it to
 the public key, creating a ciphertext:
 
-`VGhhdCdzIHdoeSBJIGZvdW5kIHlvdSBkb24ndCBwbGF5IGFyb3VuZCB3aXRoIHRoZSBGdW5reSBDb2xkIE1lZGluYQ==`
+```
+VGhhdCdzIHdoeSBJIGZvdW5kIHlvdSBkb24ndCBwbGF5IGFyb3VuZCB3aXRoIHRoZSBGdW5reSBDb2xkIE1lZGluYQ==
+```
 
 With your oracle function, you can trivially decrypt the message.
 
 Here's why:
 
-* RSA ciphertexts are just numbers. You can do trivial math on
-  them. You can for instance multiply a ciphertext by the RSA-encryption of another number; the
-  corresponding plaintext will be the product of those two numbers.
-* If you double a ciphertext (multiply it by (2**e)%n), the resulting
-  plaintext will (obviously) be either even or odd.
-* If the plaintext after doubling is even, doubling the plaintext
-  DIDN'T WRAP THE MODULUS --- the modulus is a prime number. That means the plaintext is less than
-  half the modulus.
+* RSA ciphertexts are just numbers. You can do trivial math on them.  You can for instance multiply
+  a ciphertext by the RSA-encryption of another number; the corresponding plaintext will be the
+  product of those two numbers.
+* If you double a ciphertext (multiply it by (2**e)%n), the resulting plaintext will (obviously) be
+  either even or odd.
+* If the plaintext after doubling is even, doubling the plaintext DIDN'T WRAP THE MODULUS --- the
+  modulus is a prime number.  That means the plaintext is less than half the modulus.
 
 You can repeatedly apply this heuristic, once per bit of the message, checking your oracle function
 each time.
@@ -291,14 +301,14 @@ Google for:
 
 This is Bleichenbacher from CRYPTO '98; I get a bunch of .ps versions on the first search page.
 
-Read the paper. It describes a padding oracle attack on PKCS#1v1.5. The attack is similar in spirit
-to the CBC padding oracle you built earlier; it's an "adaptive chosen ciphertext attack", which
-means you start with a valid ciphertext and repeatedly corrupt it, bouncing the adulterated
+Read the paper.  It describes a padding oracle attack on PKCS#1v1.5.  The attack is similar in
+spirit to the CBC padding oracle you built earlier; it's an "adaptive chosen ciphertext attack",
+which means you start with a valid ciphertext and repeatedly corrupt it, bouncing the adulterated
 ciphertexts off the target to learn things about the original.
 
 This is a common flaw even in modern cryptosystems that use RSA.
 
-It's also the most fun you can have building a crypto attack. It involves 9th grade math, but also
+It's also the most fun you can have building a crypto attack.  It involves 9th grade math, but also
 has you implementing an algorithm that is complex on par with finding a minimum cost spanning tree.
 
 The setup:
@@ -312,21 +322,21 @@ The setup:
 Decrypt "c" using your padding oracle.
 
 For this challenge, we've used an untenably small RSA modulus (you could factor this keypair
-instantly). That's because this exercise targets a specific step in the Bleichenbacher paper ---
+instantly).  That's because this exercise targets a specific step in the Bleichenbacher paper ---
 Step 2c, which implements a fast, nearly O(log n) search for the plaintext.
 
 Things you want to keep in mind as you read the paper:
 
 * RSA ciphertexts are just numbers.
 * RSA is "homomorphic" with respect to multiplication, which means you can multiply c * RSA(2) to
-  get a c' that will decrypt to plaintext * 2. This is mindbending but easy to see if you play with
+  get a c' that will decrypt to plaintext * 2.  This is mindbending but easy to see if you play with
   it in code --- try multiplying ciphertexts with the RSA encryptions of numbers so you know you
   grok it.
   * What you need to grok for this challenge is that Bleichenbacher uses multiplication on
     ciphertexts the way the CBC oracle uses XORs of random blocks.
 * A PKCS#1v1.5 conformant plaintext, one that starts with 00:02, must be a number between
   02:00:00...00 and 02:FF:FF..FF --- in other words, 2B and 3B-1, where B is the bit size of the
-  modulus minus the first 16 bits. When you see 2B and 3B, that's the idea the paper is playing
+  modulus minus the first 16 bits.  When you see 2B and 3B, that's the idea the paper is playing
   with.
 
 To decrypt "c", you'll need Step 2a from the paper (the search for the first "s" that, when
@@ -358,11 +368,15 @@ The full Bleichenbacher attack works basically like this:
   * We substitute the known bounds for both, leaving only 'r' free, and solve for a range of
     possible 'r'  values. This range should be small!
 * Solve m1=m0s1-rn again but this time for 'm0', plugging in each value of 'r' we generated in the
-  last step. This gives us new intervals to work with. Rule out any interval that is outside 2B,3B.
+  last step.  This gives us new intervals to work with.  Rule out any interval that is outside
+  2B,3B.
 * Repeat the process for successively higher values of 's'.  Eventually, this process will get us
   down to just one interval, whereupon we're back to exercise #47.
 
 What happens when we get down to one interval is, we stop blindly incrementing 's'; instead, we
 start rapidly growing 'r' and backing it out to 's' values by solving m1=m0s1-rn for 's' instead of
-'r' or 'm0'. So much algebra! Make your teenage son do it for you! *Note: does not work well in
+'r' or 'm0'.  So much algebra!  Make your teenage son do it for you!  *Note: does not work well in
 practice*
+
+<!-- vim: set tw=100: -->
+<!-- kak: autowrap_column=100 -->
