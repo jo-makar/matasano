@@ -12,10 +12,10 @@ type PrivKey struct {
 }
 
 type PubKey struct {
-	e, n *big.Int
+	E, N *big.Int
 }
 
-func modexp(b, e, m *big.Int) *big.Int {
+func Modexp(b, e, m *big.Int) *big.Int {
 	// For simplicity panic here rather than returning an error.
 	// Akin to how division by zero is handled.
 
@@ -61,17 +61,17 @@ func modexp(b, e, m *big.Int) *big.Int {
 	return c
 }
 
-func coprime(a, b *big.Int) bool {
+func Coprime(a, b *big.Int) bool {
 	gcd := new(big.Int).GCD(nil, nil, a, b)
 	return gcd.Cmp(big.NewInt(1)) == 0 
 }
 
 // Inverse multiplicative modulo
 // Ie given a and m find b such that (a * b) mod m = 1
-func invmod(a, m *big.Int) *big.Int {
+func Invmod(a, m *big.Int) *big.Int {
 	// The inverse will not exist unless a and m are coprime
-	if !coprime(a, m) {
-		log.Panic("invmod: not coprime")
+	if !Coprime(a, m) {
+		log.Panic("Invmod: not coprime")
 	}
 
 	var rv *big.Int
@@ -108,7 +108,7 @@ func invmod(a, m *big.Int) *big.Int {
 
 		// If rj is one then a and m are coprime
 		if rj.Cmp(big.NewInt(1)) != 0 {
-			log.Panic("invmod: rj != 0")
+			log.Panic("Invmod: rj != 0")
 		}
 
 		// rj = 1 = a*xj + m*yj => (a * xj) mod m = 1
@@ -122,7 +122,7 @@ func invmod(a, m *big.Int) *big.Int {
 		rv.Add(rv, m)
 	}
 	if rv.Cmp(big.NewInt(0)) < 0 {
-		log.Panic("invmod: rv < 0")
+		log.Panic("Invmod: rv < 0")
 	}
 	return rv
 }
@@ -146,7 +146,7 @@ func KeyPair(bits uint) (*PrivKey, *PubKey) {
 		et := new(big.Int).Mul(new(big.Int).Sub(p, big.NewInt(1)),
 		                       new(big.Int).Sub(q, big.NewInt(1)))
 
-		if !coprime(et, e) {
+		if !Coprime(et, e) {
 			continue
 		}
 
@@ -155,12 +155,12 @@ func KeyPair(bits uint) (*PrivKey, *PubKey) {
 		if false {
 			d = new(big.Int).ModInverse(e, et)
 		} else {
-			d = invmod(e, et)
+			d = Invmod(e, et)
 		}
 		break
 	}
 
-	return &PrivKey{ d: d, n: n}, &PubKey{ e: e, n: n }
+	return &PrivKey{ d: d, n: n}, &PubKey{ E: e, N: n }
 }
 
 func (k *PubKey) Encrypt(plaintext []byte) []byte {
@@ -168,9 +168,9 @@ func (k *PubKey) Encrypt(plaintext []byte) []byte {
 
 	var c *big.Int
 	if false {
-		c = new(big.Int).Exp(p, k.e, k.n)
+		c = new(big.Int).Exp(p, k.E, k.N)
 	} else {
-		c = modexp(p, k.e, k.n)
+		c = Modexp(p, k.E, k.N)
 	}
 	return c.Bytes()
 }
@@ -182,7 +182,7 @@ func (k *PrivKey) Decrypt(ciphertext []byte) []byte {
 	if false {
 		p = new(big.Int).Exp(c, k.d, k.n)
 	} else {
-		p = modexp(c, k.d, k.n)
+		p = Modexp(c, k.d, k.n)
 	}
 	return p.Bytes()
 }
