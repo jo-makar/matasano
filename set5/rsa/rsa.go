@@ -8,7 +8,7 @@ import (
 )
 
 type PrivKey struct {
-	d, n *big.Int
+	D, N *big.Int
 }
 
 type PubKey struct {
@@ -160,7 +160,7 @@ func KeyPair(bits uint) (*PrivKey, *PubKey) {
 		break
 	}
 
-	return &PrivKey{ d: d, n: n}, &PubKey{ E: e, N: n }
+	return &PrivKey{ D: d, N: n}, &PubKey{ E: e, N: n }
 }
 
 func (k *PubKey) Encrypt(plaintext []byte) []byte {
@@ -180,9 +180,9 @@ func (k *PrivKey) Decrypt(ciphertext []byte) []byte {
 
 	var p *big.Int
 	if false {
-		p = new(big.Int).Exp(c, k.d, k.n)
+		p = new(big.Int).Exp(c, k.D, k.N)
 	} else {
-		p = Modexp(c, k.d, k.n)
+		p = Modexp(c, k.D, k.N)
 	}
 	return p.Bytes()
 }
