@@ -24,14 +24,14 @@ func Modexp(b, e, m *big.Int) *big.Int {
 	two := big.NewInt(2)
 
 	if m.Cmp(one) == -1 {
-		log.Panic("modExp: m < 1")
+		log.Panic("Modexp: m < 1")
 	} else if m.Cmp(one) == 0 {
 		return zero
 	}
 
 	if e.Cmp(zero) == -1 {
 		// TODO Add support for this
-		log.Panic("modExp: e < 0")
+		log.Panic("Modexp: e < 0")
 	} else if e.Cmp(zero) == 0 {
 		return one
 	} else if e.Cmp(one) == 0 {
