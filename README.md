@@ -56,7 +56,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] Implement Unpadded Message Recovery Oracle
   - [x] Bleichenbacher's e=3 RSA Attack
   - [x] DSA Key Recovery From Nonce
-  - [ ] DSA Nonce Recovery From Repeated Nonce
+  - [x] DSA Nonce Recovery From Repeated Nonce
   - [ ] DSA Parameter Tampering
   - [ ] Decrypt RSA From One-Bit Oracle
   - [ ] Bleichenbacher's PKCS 1.5 Padding Oracle (Simple Case)

@@ -39,8 +39,8 @@ func main() {
 		                                                            h)),
 		                      pubkey.Q)
 
-		h := sha1.Sum([]byte(x.Text(16)))
-		if bytes.Equal(h[:], target) {
+		hx := sha1.Sum([]byte(x.Text(16)))
+		if bytes.Equal(hx[:], target) {
 			log.Printf("subkey k = %v", k)
 			log.Printf("privkey x = %v", x.Text(16))
 			found = true
