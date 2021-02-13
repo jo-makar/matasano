@@ -55,7 +55,7 @@ DSA and RSA, a variety of famous attacks, and so on.
 - Problem set 6
   - [x] Implement Unpadded Message Recovery Oracle
   - [x] Bleichenbacher's e=3 RSA Attack
-  - [ ] DSA Key Recovery From Nonce
+  - [x] DSA Key Recovery From Nonce
   - [ ] DSA Nonce Recovery From Repeated Nonce
   - [ ] DSA Parameter Tampering
   - [ ] Decrypt RSA From One-Bit Oracle
