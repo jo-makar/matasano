@@ -157,7 +157,7 @@ func KeyPair(l, n uint) (*PrivKey, *PubKey) {
 	}
 	y := Modexp(params.G, x, params.P)
 
-	return &PrivKey{ X: x }, &PubKey{ P: params.P, Q: params.Q, G: params.G, Y: y}
+	return &PrivKey{ X: x }, &PubKey{ P: params.P, Q: params.Q, G: params.G, Y: y }
 }
 
 func KeyPairFixed(l, n uint) (*PrivKey, *PubKey) {
@@ -184,7 +184,19 @@ func KeyPairFixed(l, n uint) (*PrivKey, *PubKey) {
 	}
 	y := Modexp(g, x, p)
 
-	return &PrivKey{ X: x }, &PubKey{ P: p, Q: q, G: g, Y: y}
+	return &PrivKey{ X: x }, &PubKey{ P: p, Q: q, G: g, Y: y }
+}
+
+func KeyPairParams(p, q, g *big.Int) (*PrivKey, *PubKey) {
+	// Purposefully omitting checks on the specified params
+
+	x, err := rand.Int(rand.Reader, q)
+	if err != nil {
+		log.Panic(err)
+	}
+	y := Modexp(g, x, p)
+
+	return &PrivKey{ X: x }, &PubKey{ P: p, Q: q, G: g, Y: y }
 }
 
 func Sign(msg []byte, privkey *PrivKey, pubkey *PubKey) (*Signature, *big.Int) {
