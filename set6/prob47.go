@@ -4,7 +4,6 @@ import (
 	"../set5/rsa"
 
 	"bytes"
-	"fmt"
 	"log"
 	"math/big"
 )
@@ -12,6 +11,15 @@ import (
 func main() {
 	const bits = 256
 	privkey, pubkey := rsa.KeyPair(bits)
+
+	// FIXME Using e=3 causes issues si boundary issues, investigate further
+	if true {
+		n, _ := new(big.Int).SetString("32148684684676556405470307304212155563108038575817858708524559838688846782883", 10)
+		privkey.D.SetString("17465275638390895437086910008989877270185252992890772042131376337850261504993", 10)
+		privkey.N.Set(n)
+		pubkey.E.Set(big.NewInt(65537))
+		pubkey.N.Set(n)
+	}
 
 	// 2**(8*(k-1)) <= n < 2**(8*k) where k = bits/8
 	if new(big.Int).Exp(big.NewInt(2), big.NewInt(8 * (bits/8 - 1)), nil).Cmp(pubkey.N) == 1 {
@@ -27,7 +35,7 @@ func main() {
 		// This is needed because the padding starts with a zero byte
 		// and the conversion between bytes and math/big.Int is big-endian
 		plaintext2 := make([]byte, len(plaintext) + 1)
-		copy(plaintext2[1:len(plaintext)], plaintext[0:len(plaintext)])
+		copy(plaintext2[1:len(plaintext)+1], plaintext[0:len(plaintext)])
 		plaintext = plaintext2
 
 		// This isn't fully checking PKCS#1 padding it should verify:
@@ -87,9 +95,6 @@ func main() {
 	Mi = append(Mi, [2]*big.Int{ new(big.Int).Mul(big.NewInt(2), B),
 	                             new(big.Int).Sub(new(big.Int).Mul(big.NewInt(3), B), big.NewInt(1)) })
 
-	log.Printf("n = 0x%v", pubkey.N.Text(16))
-	log.Printf("c0 = 0x%v", c0.Text(16))
-
 	//
 	// Step 2a - Starting the search
 	//
@@ -100,54 +105,14 @@ func main() {
 			break
 		}
 		s1.Add(s1, big.NewInt(1))
-
-		if i > 0 && i % 1000 == 0 {
-			fmt.Printf(".")
-		}
 	}
-	fmt.Printf("\n")
 
-	log.Printf("step 2a complete: s1 = %v", s1)
+	log.Printf("s1 = %v", s1)
 
-	si := s1
-	var si1 *big.Int
+	si1 := s1
+	var si *big.Int
+
 	for {
-		//
-		// Step 3 - Narrowing the set of solutions
-		//
-
-		a, b := Mi[0][0], Mi[0][1]
-
-		r := divFloor(new(big.Int).Add(new(big.Int).Sub(new(big.Int).Mul(a, si),
-		                                                new(big.Int).Mul(big.NewInt(3), B)),
-		                               big.NewInt(1)),
-		              pubkey.N)
-
-		Mi[0][0] = max(a, divCeil(new(big.Int).Add(new(big.Int).Mul(big.NewInt(2), B),
-		                                           new(big.Int).Mul(r, pubkey.N)),
-		                          si))
-
-		if a.Cmp(Mi[0][0]) == 1 {
-			log.Panic("Mi-1[0][0] > Mi[0][0]")
-		}
-
-		Mi[0][1] = min(b, divFloor(new(big.Int).Add(new(big.Int).Sub(new(big.Int).Mul(big.NewInt(3), B),
-		                                                                              big.NewInt(1)),
-		                                            new(big.Int).Mul(r, pubkey.N)),
-		                           si))
-
-		if b.Cmp(Mi[0][1]) == -1 {
-			log.Panic("Mi-1[0][1] < Mi[0][1]")
-		}
-
-		log.Printf("step 3 complete")
-
-		si1 = new(big.Int).Set(si)
-
-		if len(Mi) == 1 && Mi[0][0].Cmp(Mi[0][1]) == 0 {
-			break
-		}
-
 		//
 		// Step 2c - Searching with one interval left
 		//
@@ -156,11 +121,12 @@ func main() {
 			log.Panic("len(Mi) != 1")
 		}
 
+		a, b := Mi[0][0], Mi[0][1]
+
 		ri := new(big.Int).Mul(big.NewInt(2), divFloor(new(big.Int).Sub(new(big.Int).Mul(b, si1),
 		                                                                new(big.Int).Mul(big.NewInt(2), B)),
 		                                               pubkey.N))
 
-		i := 0
 		step2c:
 		for {
 			siLower := divFloor(new(big.Int).Add(new(big.Int).Mul(big.NewInt(2), B),
@@ -171,8 +137,6 @@ func main() {
 			                                    new(big.Int).Mul(ri, pubkey.N)),
 			                   a)
 
-			// FIXME STOPPED What is causing this?
-			//               Suspect there is a typo in the paper
 			if siLower.Cmp(siUpper) == 1 {
 				log.Panic("siLower > siUpper")
 			}
@@ -182,18 +146,39 @@ func main() {
 					si = new(big.Int).Set(siTest)
 					break step2c
 				}
-
-				i++
-				if i % 100 == 0 {
-					fmt.Printf(".")
-				}
 			}
 
 			ri.Add(ri, big.NewInt(1))
 		}
-		fmt.Printf("\n")
 
-		log.Printf("step 2c complete")
+		//
+		// Step 3 - Narrowing the set of solutions
+		//
+
+		Mi[0][0] = max(a, divCeil(new(big.Int).Add(new(big.Int).Mul(big.NewInt(2), B),
+		                                           new(big.Int).Mul(ri, pubkey.N)),
+		                          si))
+
+		if a.Cmp(Mi[0][0]) == 1 {
+			log.Panic("Mi-1[0][0] > Mi[0][0]")
+		}
+
+		Mi[0][1] = min(b, divFloor(new(big.Int).Add(new(big.Int).Sub(new(big.Int).Mul(big.NewInt(3), B),
+		                                                                              big.NewInt(1)),
+		                                            new(big.Int).Mul(ri, pubkey.N)),
+		                           si))
+
+		if b.Cmp(Mi[0][1]) == -1 {
+			log.Panic("Mi-1[0][1] < Mi[0][1]")
+		}
+
+		log.Printf("si = %v", si)
+
+		si1 = new(big.Int).Set(si)
+
+		if len(Mi) == 1 && Mi[0][0].Cmp(Mi[0][1]) == 0 {
+			break
+		}
 	}
 
 	//
@@ -201,9 +186,15 @@ func main() {
 	//
 
 	a := Mi[0][0]
-	m := new(big.Int).Mod(a, pubkey.N)
+	m := new(big.Int).Mod(a, pubkey.N).Bytes()
 
-	if !bytes.Equal(m.Bytes(), plaintext) {
+	// This is needed because the padding starts with a zero byte
+	// and the conversion between bytes and math/big.Int is big-endian
+	m2 := make([]byte, len(m) + 1)
+	copy(m2[1:len(m)+1], m[0:len(m)])
+	m = m2
+
+	if !bytes.Equal(m, plaintext) {
 		log.Panic("match not found")
 	}
 }

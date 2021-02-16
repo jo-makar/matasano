@@ -59,7 +59,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] DSA Nonce Recovery From Repeated Nonce
   - [x] DSA Parameter Tampering
   - [x] Decrypt RSA From One-Bit Oracle
-  - [ ] Bleichenbacher's PKCS 1.5 Padding Oracle (Simple Case)
+  - [x] Bleichenbacher's PKCS 1.5 Padding Oracle (Simple Case)
   - [ ] Bleichenbacher's PKCS 1.5 Padding Oracle (Complete)
 
 # License
