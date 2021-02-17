@@ -12,7 +12,8 @@ func main() {
 	const bits = 256
 	privkey, pubkey := rsa.KeyPair(bits)
 
-	// FIXME Using e=3 causes issues si boundary issues, investigate further
+	// TODO Using e=3 causes issues si boundary issues, investigate further.
+	//      There are modifications to the calculations implemented in prob48.go that resolve this.
 	if true {
 		n, _ := new(big.Int).SetString("32148684684676556405470307304212155563108038575817858708524559838688846782883", 10)
 		privkey.D.SetString("17465275638390895437086910008989877270185252992890772042131376337850261504993", 10)
@@ -34,9 +35,12 @@ func main() {
 
 		// This is needed because the padding starts with a zero byte
 		// and the conversion between bytes and math/big.Int is big-endian
-		plaintext2 := make([]byte, len(plaintext) + 1)
-		copy(plaintext2[1:len(plaintext)+1], plaintext[0:len(plaintext)])
-		plaintext = plaintext2
+		if len(plaintext) < bits / 8 {
+			plaintext2 := make([]byte, bits / 8)
+			n := bits/8 - len(plaintext)
+			copy(plaintext2[n:n+len(plaintext)], plaintext[0:len(plaintext)])
+			plaintext = plaintext2
+		}
 
 		// This isn't fully checking PKCS#1 padding it should verify:
 		//     00 02 <padding string> 00 <data block>
@@ -190,9 +194,12 @@ func main() {
 
 	// This is needed because the padding starts with a zero byte
 	// and the conversion between bytes and math/big.Int is big-endian
-	m2 := make([]byte, len(m) + 1)
-	copy(m2[1:len(m)+1], m[0:len(m)])
-	m = m2
+	if len(m) < bits / 8 {
+		m2 := make([]byte, bits / 8)
+		n := bits/8 - len(m)
+		copy(m2[n:n+len(m)], m[0:len(m)])
+		m = m2
+	}
 
 	if !bytes.Equal(m, plaintext) {
 		log.Panic("match not found")

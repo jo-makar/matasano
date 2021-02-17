@@ -60,7 +60,7 @@ DSA and RSA, a variety of famous attacks, and so on.
   - [x] DSA Parameter Tampering
   - [x] Decrypt RSA From One-Bit Oracle
   - [x] Bleichenbacher's PKCS 1.5 Padding Oracle (Simple Case)
-  - [ ] Bleichenbacher's PKCS 1.5 Padding Oracle (Complete)
+  - [x] Bleichenbacher's PKCS 1.5 Padding Oracle (Complete)
 
 # License
 This work is released to the public domain.
